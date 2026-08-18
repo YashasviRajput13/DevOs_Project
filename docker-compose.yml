@@ -1,0 +1,90 @@
+version: "3.9"
+
+name: devos
+
+services:
+  # ── Backend ──────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: devos_backend
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+    networks:
+      - devos_net
+
+  # ── Frontend ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: devos_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - devos_net
+
+  # ── Database ─────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: devos_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-devos_db}
+      POSTGRES_USER: ${DB_USER:-devos_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-devos_user} -d ${DB_NAME:-devos_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - devos_net
+
+  # ── Redis ─────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: devos_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - devos_net
+
+# ── Volumes ───────────────────────────────────────────────
+volumes:
+  postgres_data:
+  redis_data:
+
+# ── Networks ──────────────────────────────────────────────
+networks:
+  devos_net:
+    driver: bridge
