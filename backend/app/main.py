@@ -1,18 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.repositories import router as repositories_router
+from app.api.search import router as search_router
+from app.api.chat import router as chat_router
+from app.api.projects import router as projects_router
+from app.api.agent import router as agent_router
 from app.config import get_settings
 
 settings = get_settings()
 
 app = FastAPI(
     title="DevOs API",
-    description="Backend API for the DevOs platform",
-    version="0.1.0",
+    description="AI-powered repository intelligence platform",
+    version="0.2.0",
     debug=settings.DEBUG,
 )
 
-# ── CORS ──────────────────────────────────────────────────
+# ── CORS ──────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -21,19 +26,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Routers ───────────────────────────────────────────────────────────────
+app.include_router(projects_router)       # /api/projects
+app.include_router(repositories_router)  # /api/projects/{id}/repositories/...
+app.include_router(search_router)        # /api/search
+app.include_router(chat_router)          # /api/chat
+app.include_router(agent_router)         # /api/agent
 
-# ── Health check ──────────────────────────────────────────
+# ── Health ────────────────────────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
 async def health_check():
-    """Returns the current health status of the API."""
-    return {
-        "status": "ok",
-        "env": settings.APP_ENV,
-        "debug": settings.DEBUG,
-    }
+    return {"status": "ok", "env": settings.APP_ENV, "debug": settings.DEBUG}
 
-
-# ── Root ──────────────────────────────────────────────────
 @app.get("/", tags=["Root"])
 async def root():
-    return {"message": "Welcome to the DevOs API 🚀"}
+    return {"message": "DevOs API — AI-powered repository intelligence 🚀"}

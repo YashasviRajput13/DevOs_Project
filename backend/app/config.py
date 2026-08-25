@@ -1,7 +1,11 @@
+import os
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 from pathlib import Path
 
+# Force pydantic-settings to read from .env by clearing any global env overrides for Groq
+if "GROQ_API_KEY" in os.environ:
+    del os.environ["GROQ_API_KEY"]
 
 class Settings(BaseSettings):
     # App
@@ -21,6 +25,13 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ""
+
+    # GitHub
+    GITHUB_TOKEN: str = ""
+
+    # LLM
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     # JWT
     JWT_SECRET: str = "changeme"
