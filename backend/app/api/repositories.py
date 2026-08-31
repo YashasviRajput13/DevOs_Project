@@ -6,7 +6,11 @@ Endpoints for repository management plus:
   GET  /architecture
   GET  /files
 """
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
+
+logger = logging.getLogger(__name__)
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy.orm import Session
 
@@ -142,9 +146,35 @@ async def index_repository(
     if not repository:
         raise HTTPException(status_code=404, detail="Repository not found")
 
-    indexer = RepositoryIndexer(db)
-    result = await indexer.index_repository(repository)
-    return result
+    logger.info(
+        "index: starting indexing for project=%s repo=%s (%s)",
+        project_id, repository_id, repository.full_name,
+    )
+    try:
+        indexer = RepositoryIndexer(db)
+        result = await indexer.index_repository(repository)
+        logger.info(
+            "index: completed — files=%s chunks=%s deps=%s",
+            result.get("files_indexed"),
+            result.get("chunks_created"),
+            result.get("dependencies_extracted"),
+        )
+        return result
+    except MemoryError:
+        logger.error("index: OOM during indexing repo=%s — 512MB limit exceeded", repository_id)
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Indexing ran out of memory. The repository may be too large for "
+                "the current 512 MB instance. Try indexing a smaller repository."
+            ),
+        )
+    except Exception as exc:
+        logger.error("index: failed for repo=%s — %s: %s", repository_id, type(exc).__name__, exc)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Indexing failed: {type(exc).__name__}: {exc}",
+        )
 
 
 # ── Repository files ───────────────────────────────────────────────────────
