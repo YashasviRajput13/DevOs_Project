@@ -169,6 +169,10 @@ async def index_repository(
                 "the current 512 MB instance. Try indexing a smaller repository."
             ),
         )
+    except ValueError as exc:
+        # Raised by GitHubService or LLMService when a required env var is missing
+        logger.error("index: configuration error for repo=%s — %s", repository_id, exc)
+        raise HTTPException(status_code=422, detail=str(exc))
     except Exception as exc:
         logger.error("index: failed for repo=%s — %s: %s", repository_id, type(exc).__name__, exc)
         raise HTTPException(

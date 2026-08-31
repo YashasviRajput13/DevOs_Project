@@ -1,7 +1,11 @@
 import base64
+import logging
+
 import httpx
 
 from app.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 
 class GitHubService:
@@ -9,7 +13,21 @@ class GitHubService:
     def __init__(self):
         settings = get_settings()
 
-        self.token = settings.GITHUB_TOKEN
+        token = settings.GITHUB_TOKEN.strip()
+
+        logger.info(
+            "GitHubService: key_present=%s key_length=%d",
+            bool(token),
+            len(token),
+        )
+
+        if not token:
+            raise ValueError(
+                "GITHUB_TOKEN is missing or empty. "
+                "Set it in the Render dashboard → Environment → GITHUB_TOKEN."
+            )
+
+        self.token = token
         self.base_url = "https://api.github.com"
 
         self.headers = {

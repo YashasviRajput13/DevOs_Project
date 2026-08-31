@@ -40,14 +40,27 @@ class LLMService:
     def __init__(self):
         settings = get_settings()
 
-        if not settings.GROQ_API_KEY:
-            raise ValueError("GROQ_API_KEY is not configured")
+        api_key = settings.GROQ_API_KEY.strip()
+        model = settings.GROQ_MODEL.strip() or "llama-3.3-70b-versatile"
+
+        logger.info(
+            "LLMService: key_present=%s key_length=%d model=%s",
+            bool(api_key),
+            len(api_key),
+            model,
+        )
+
+        if not api_key:
+            raise ValueError(
+                "GROQ_API_KEY is missing or empty. "
+                "Set it in the Render dashboard → Environment → GROQ_API_KEY."
+            )
 
         self.client = Groq(
-            api_key=settings.GROQ_API_KEY,
+            api_key=api_key,
             timeout=Timeout(25.0, connect=5.0),
         )
-        self.model = settings.GROQ_MODEL
+        self.model = model
 
     # ------------------------------------------------------------------
     # Core generation method (used by /api/chat — unchanged behaviour)
