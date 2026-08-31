@@ -6,7 +6,9 @@ pgvector
 psycopg2-binary>=2.9.12
 pydantic>=2.13.4
 pydantic-settings>=2.14.1
+# CPU-only torch - drastically smaller than the default CUDA wheel (~750 MB → ~200 MB)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.7.1
 sentence-transformers>=5.5.1
 SQLAlchemy>=2.0.48
-torch>=2.7.1
 uvicorn[standard]>=0.48.0

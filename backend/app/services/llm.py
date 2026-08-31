@@ -107,6 +107,7 @@ class LLMService:
     # Change plan
     # ------------------------------------------------------------------
 
+    def generate_change_plan(self, query: str, context: str) -> str:
         prompt = (
             "Generate a structured change plan for the user's request. Output strictly valid JSON without any markdown formatting wrappers.\n"
             "Rules:\n"
