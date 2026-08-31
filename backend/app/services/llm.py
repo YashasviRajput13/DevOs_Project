@@ -13,7 +13,12 @@ Rules enforced in every prompt:
 - No fabricated code, files, or architecture details.
 - Recommendations must be separated from confirmed findings.
 """
+import logging
+
 from groq import Groq
+from httpx import Timeout
+
+logger = logging.getLogger(__name__)
 
 from app.config import get_settings
 
@@ -38,7 +43,10 @@ class LLMService:
         if not settings.GROQ_API_KEY:
             raise ValueError("GROQ_API_KEY is not configured")
 
-        self.client = Groq(api_key=settings.GROQ_API_KEY)
+        self.client = Groq(
+            api_key=settings.GROQ_API_KEY,
+            timeout=Timeout(25.0, connect=5.0),
+        )
         self.model = settings.GROQ_MODEL
 
     # ------------------------------------------------------------------
@@ -192,6 +200,7 @@ class LLMService:
     # ------------------------------------------------------------------
 
     def _call(self, prompt: str) -> str:
+        logger.info("LLM _call: sending request to Groq (model=%s)", self.model)
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -201,9 +210,16 @@ class LLMService:
                 ],
                 temperature=0.2,
             )
-            return response.choices[0].message.content or ""
+            content = response.choices[0].message.content or ""
+            logger.info("LLM _call: response received (%d chars)", len(content))
+            return content
         except Exception as e:
             e_str = str(e).lower()
+            logger.error("LLM _call: Groq error — %s", type(e).__name__)
             if "invalid_api_key" in e_str or "unauthorized" in e_str or "401" in e_str:
                 raise ValueError("AI configuration error: Invalid API key") from None
-            raise ValueError("AI service unavailable") from None
+            if "model" in e_str and ("not found" in e_str or "does not exist" in e_str):
+                raise ValueError(f"AI configuration error: model '{self.model}' not found") from None
+            if "timeout" in e_str or "timed out" in e_str:
+                raise ValueError("AI service timed out") from None
+            raise ValueError(f"AI service unavailable: {type(e).__name__}") from None
