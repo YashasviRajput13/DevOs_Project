@@ -17,7 +17,7 @@ export default function LandingPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundColor: "#06060c",
+      backgroundColor: "#000000",
       color: "var(--text)",
       fontFamily: "var(--font-sans, system-ui, sans-serif)",
       overflowX: "hidden",
@@ -266,7 +266,7 @@ export default function LandingPage() {
 
         {/* HOW IT WORKS */}
         <section id="how-it-works" style={{
-          padding: "96px 24px", backgroundColor: "#0a0a0f",
+          padding: "96px 24px", backgroundColor: "transparent",
           borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)",
           position: "relative", overflow: "hidden"
         }}>
@@ -384,7 +384,7 @@ export default function LandingPage() {
         </section>
 
         {/* BENEFITS SECTION */}
-        <section style={{ padding: "96px 24px", backgroundColor: "#0a0a0f", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+        <section style={{ padding: "96px 24px", backgroundColor: "transparent", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <div style={{
               display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(4, 1fr)", gap: 32
@@ -427,7 +427,7 @@ export default function LandingPage() {
       </main>
 
       {/* FOOTER */}
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.1)", backgroundColor: "#06060c", padding: "48px 24px" }}>
+      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.1)", backgroundColor: "#000000", padding: "48px 24px" }}>
         <div style={{
           maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row",
           justifyContent: "space-between", alignItems: "center", gap: 24
