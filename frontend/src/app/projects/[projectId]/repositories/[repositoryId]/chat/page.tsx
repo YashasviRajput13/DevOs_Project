@@ -127,12 +127,48 @@ export default function ChatPage() {
   
   const [provider, setProvider] = useState<string>("devos_auto");
   const [geminiConfigured, setGeminiConfigured] = useState<boolean>(false);
+  
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [conversationId, setConversationId] = useState<number | undefined>();
 
   useEffect(() => {
     api.health().then((res: any) => {
       setGeminiConfigured(!!res.gemini_configured);
     }).catch(console.error);
+    loadConversations();
   }, []);
+
+  async function loadConversations() {
+    try {
+      const convs = await api.conversations.list(pid);
+      setConversations(convs.filter((c: any) => c.repository_id === rid));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function openConversation(id: number) {
+    try {
+      setLoading(true);
+      const conv = await api.conversations.get(id);
+      setConversationId(id);
+      setMessages(conv.messages.map((m: any) => ({
+        id: m.id.toString(),
+        role: m.role,
+        content: m.content,
+        sources: m.sources, 
+      })));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function startNewChat() {
+    setConversationId(undefined);
+    setMessages([]);
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -147,7 +183,11 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const res = await api.chat(q, pid, rid, provider);
+      const res = await api.chat(q, pid, rid, provider, conversationId);
+      if (res.conversation_id && res.conversation_id !== conversationId) {
+        setConversationId(res.conversation_id);
+        loadConversations();
+      }
       setMessages(prev => prev.map(m =>
         m.id === loadingMsg.id
           ? { ...m, loading: false, content: res.answer, sources: res.sources, intent: res.intent }
@@ -165,7 +205,50 @@ export default function ChatPage() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "var(--bg)" }}>
+    <div style={{ display: "flex", height: "100%", background: "var(--bg)" }}>
+      {/* Sidebar for Conversations */}
+      <div style={{
+        width: 260, flexShrink: 0, borderRight: "1px solid var(--border)",
+        background: "var(--bg-card)", display: "flex", flexDirection: "column"
+      }}>
+        <div style={{ padding: "16px", borderBottom: "1px solid var(--border)" }}>
+          <button onClick={startNewChat} style={{
+            width: "100%", padding: "10px", borderRadius: 8, border: "none",
+            background: "var(--accent)", color: "white", fontWeight: 500, cursor: "pointer"
+          }}>
+            + New Chat
+          </button>
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 8px" }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-dim)", textTransform: "uppercase", paddingLeft: 8, marginBottom: 8 }}>
+            Recent Conversations
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {conversations.length === 0 ? (
+              <div style={{ padding: 8, fontSize: 12, color: "var(--text-muted)" }}>No previous chats.</div>
+            ) : (
+              conversations.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => openConversation(c.id)}
+                  style={{
+                    textAlign: "left", padding: "10px", borderRadius: 6, border: "none",
+                    background: conversationId === c.id ? "rgba(6,182,212,0.1)" : "transparent",
+                    color: conversationId === c.id ? "var(--text)" : "var(--text-muted)",
+                    cursor: "pointer", fontSize: 13, display: "block",
+                    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"
+                  }}
+                >
+                  {c.title}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Chat Area */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       {/* Settings / Model Provider Header */}
       <div style={{ 
         padding: "16px 32px", borderBottom: "1px solid var(--border)", 
@@ -262,6 +345,7 @@ export default function ChatPage() {
           Enter to send · Shift+Enter for new line
         </div>
       </div>
+    </div>
     </div>
   );
 }

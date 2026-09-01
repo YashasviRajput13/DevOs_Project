@@ -42,8 +42,12 @@ class AgentRequest(BaseModel):
     limit: int = Field(default=8, ge=1, le=20)
 
 
+from app.models.user import User, RoleEnum
+from app.services.auth import get_current_user, verify_project_access
+
 @router.post("")
-def agent_query(data: AgentRequest, db: Session = Depends(get_db)):
+def agent_query(data: AgentRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    verify_project_access(db, current_user.id, data.project_id)
     agent = DeveloperAgent(db)
     result = agent.run(
         project_id=data.project_id,
@@ -66,7 +70,8 @@ class PlanRequest(BaseModel):
 
 
 @router.post("/plan")
-def generate_plan(data: PlanRequest, db: Session = Depends(get_db)):
+def generate_plan(data: PlanRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    verify_project_access(db, current_user.id, data.project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
     """
     Generate a change plan with unified diff.
     Does NOT apply any changes.
@@ -136,7 +141,11 @@ class ApplyRequest(BaseModel):
 
 
 @router.post("/apply")
-def apply_plan(data: ApplyRequest, db: Session = Depends(get_db)):
+def apply_plan(data: ApplyRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # We must fetch the audit to verify project
+    audit = db.query(ChangeAuditLog).filter(ChangeAuditLog.plan_id == data.plan_id).first()
+    if audit:
+        verify_project_access(db, current_user.id, audit.project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
     """Apply or reject a pending plan. Requires explicit approved=true."""
     modifier = CodeModifier(db)
     try:
@@ -161,7 +170,8 @@ class TestRequest(BaseModel):
 
 
 @router.post("/test")
-def run_tests(data: TestRequest, db: Session = Depends(get_db)):
+def run_tests(data: TestRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    verify_project_access(db, current_user.id, data.project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
     """Run controlled tests after an approved plan has been applied."""
     runner = TestRunner(db)
     result = runner.run(
@@ -220,7 +230,10 @@ class BranchRequest(BaseModel):
 
 
 @router.post("/branch")
-def create_branch(data: BranchRequest, db: Session = Depends(get_db)):
+def create_branch(data: BranchRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    audit = db.query(ChangeAuditLog).filter(ChangeAuditLog.plan_id == data.plan_id).first()
+    if audit:
+        verify_project_access(db, current_user.id, audit.project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
     # Verify plan exists
     plan = _PENDING_PLANS.get(data.plan_id)
     audit = (
@@ -268,7 +281,10 @@ class CommitRequest(BaseModel):
 
 
 @router.post("/commit")
-def commit_changes(data: CommitRequest, db: Session = Depends(get_db)):
+def commit_changes(data: CommitRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    audit = db.query(ChangeAuditLog).filter(ChangeAuditLog.plan_id == data.plan_id).first()
+    if audit:
+        verify_project_access(db, current_user.id, audit.project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
     audit = (
         db.query(ChangeAuditLog)
         .filter(ChangeAuditLog.plan_id == data.plan_id)
@@ -340,7 +356,10 @@ class PushRequest(BaseModel):
 
 
 @router.post("/push")
-def push_branch(data: PushRequest, db: Session = Depends(get_db)):
+def push_branch(data: PushRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    audit = db.query(ChangeAuditLog).filter(ChangeAuditLog.plan_id == data.plan_id).first()
+    if audit:
+        verify_project_access(db, current_user.id, audit.project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
     audit = (
         db.query(ChangeAuditLog)
         .filter(ChangeAuditLog.plan_id == data.plan_id)
@@ -385,7 +404,8 @@ class PRRequest(BaseModel):
 
 
 @router.post("/pr")
-async def create_pr(data: PRRequest, db: Session = Depends(get_db)):
+async def create_pr(data: PRRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    verify_project_access(db, current_user.id, data.project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
     audit = (
         db.query(ChangeAuditLog)
         .filter(ChangeAuditLog.plan_id == data.plan_id)
@@ -448,7 +468,8 @@ class ExecuteRequest(BaseModel):
 
 
 @router.post("/execute")
-def execute_workflow(data: ExecuteRequest, db: Session = Depends(get_db)):
+def execute_workflow(data: ExecuteRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    verify_project_access(db, current_user.id, data.project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
     """
     High-level endpoint.
 

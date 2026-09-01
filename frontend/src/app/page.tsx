@@ -211,7 +211,7 @@ export default function LandingPage() {
           }}>
             <div style={{
               position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(6,182,212,0.05), transparent)",
-              pointerEvents: "none"
+              pointerEvents: "none", zIndex: 10
             }} />
 
             {/* Fake browser bar */}
@@ -227,75 +227,25 @@ export default function LandingPage() {
               <div style={{ margin: "0 auto", width: "50%", height: 24, backgroundColor: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)", borderRadius: 6, border: `1px solid ${cardBorder}` }}></div>
             </div>
 
-            {/* Dashboard UI Mockup inside Video Container */}
+            {/* Native Video Player */}
             <div style={{
-              position: "relative", aspectRatio: "16/9", display: "flex",
-              flexDirection: isMobile ? "column" : "row", backgroundColor: isLight ? "#f8fafc" : "#08080c"
+              position: "relative", aspectRatio: "16/9", display: "flex", backgroundColor: "#000"
             }}>
-
-              {/* Play Button Overlay */}
-              <div style={{
-                position: "absolute", inset: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center",
-                backgroundColor: isLight ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.4)", backdropFilter: "blur(2px)", cursor: "pointer"
-              }}>
-                <div style={{
-                  width: 80, height: 80, borderRadius: "50%", backgroundColor: "rgba(6,182,212,0.9)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 0 30px rgba(6,182,212,0.6)", paddingLeft: 4
-                }}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z" /></svg>
-                </div>
-              </div>
-
-              {/* Sidebar Mockup */}
-              {!isMobile && (
-                <div style={{
-                  width: 200, borderRight: `1px solid ${cardBorder}`,
-                  display: "flex", flexDirection: "column", padding: 16, gap: 16, opacity: 0.5
-                }}>
-                  <div style={{ height: 16, width: 96, backgroundColor: isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)", borderRadius: 4, marginBottom: 16 }} />
-                  <div style={{ height: 32, width: "100%", backgroundColor: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)", borderRadius: 4 }} />
-                  <div style={{ height: 32, width: "100%", backgroundColor: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)", borderRadius: 4 }} />
-                  <div style={{ height: 32, width: "100%", backgroundColor: "rgba(6,182,212,0.2)", borderRadius: 4, border: "1px solid rgba(6,182,212,0.3)" }} />
-                </div>
-              )}
-
-              {/* Main Content Mockup */}
-              <div style={{ flex: 1, padding: isMobile ? 16 : 32, display: "flex", flexDirection: "column", gap: 24, opacity: 0.6 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ height: 24, width: 192, backgroundColor: isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)", borderRadius: 4 }} />
-                  <div style={{ height: 24, width: 96, backgroundColor: "rgba(34,197,94,0.2)", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)" }} />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-                  <div style={{ height: 80, backgroundColor: isLight ? "#ffffff" : "rgba(255,255,255,0.05)", borderRadius: 12, border: `1px solid ${cardBorder}` }} />
-                  <div style={{ height: 80, backgroundColor: isLight ? "#ffffff" : "rgba(255,255,255,0.05)", borderRadius: 12, border: `1px solid ${cardBorder}` }} />
-                  <div style={{ height: 80, backgroundColor: isLight ? "#ffffff" : "rgba(255,255,255,0.05)", borderRadius: 12, border: `1px solid ${cardBorder}` }} />
-                </div>
-                <div style={{ flex: 1, display: "flex", gap: 16 }}>
-                  <div style={{ flex: 1, backgroundColor: isLight ? "#ffffff" : "rgba(255,255,255,0.05)", borderRadius: 12, border: `1px solid ${cardBorder}`, padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div style={{ height: 16, width: 128, backgroundColor: isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)", borderRadius: 4 }} />
-                    <div style={{ height: "100%", backgroundColor: isLight ? "#f1f5f9" : "#111118", borderRadius: 4, border: `1px solid ${cardBorder}`, padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-                      <div style={{ height: 12, width: "75%", backgroundColor: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)", borderRadius: 4 }} />
-                      <div style={{ height: 12, width: "50%", backgroundColor: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)", borderRadius: 4 }} />
-                      <div style={{ height: 12, width: "83%", backgroundColor: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)", borderRadius: 4 }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Video control bar fake */}
-              <div style={{
-                position: "absolute", bottom: 0, left: 0, right: 0, height: 40,
-                backgroundColor: isLight ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)", borderTop: `1px solid ${cardBorder}`,
-                display: "flex", alignItems: "center", padding: "0 16px", gap: 16, zIndex: 20
-              }}>
-                <div style={{ width: 12, height: 12, backgroundColor: isLight ? "#0f172a" : "white", borderRadius: 2 }}></div>
-                <div style={{ flex: 1, height: 4, backgroundColor: isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)", borderRadius: 2, overflow: "hidden" }}>
-                  <div style={{ width: "33%", height: "100%", backgroundColor: "var(--accent)" }}></div>
-                </div>
-                <div style={{ fontSize: 10, color: textMuted, fontFamily: "monospace" }}>0:42 / 2:15</div>
-              </div>
-
+              <video 
+                src="/demo.mp4" 
+                controls
+                muted
+                playsInline
+                preload="metadata"
+                onPointerOver={e => {
+                  const p = (e.target as HTMLVideoElement).play();
+                  if (p !== undefined) p.catch(() => {});
+                }}
+                onPointerOut={e => (e.target as HTMLVideoElement).pause()}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              >
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
         </section>

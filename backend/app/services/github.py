@@ -77,11 +77,18 @@ class GitHubService:
         data = await self.get_file_content(owner, repo, path)
         if data.get("encoding") != "base64":
             return None
+            
+        size = data.get("size", 0)
+        if size > 500_000:
+            return None # Skip files over 500KB to avoid exhausting connection buffer
+
         content = base64.b64decode(data["content"]).decode("utf-8", errors="ignore")
+        # PostgreSQL cannot accept NUL bytes in string literals
+        content = content.replace("\x00", "")
         return {
             "content": content,
             "sha": data.get("sha"),
-            "size": data.get("size"),
+            "size": size,
         }
 
     async def create_pull_request(

@@ -17,9 +17,18 @@ async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("devos_token");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...options.headers },
     ...options,
+    headers: { ...headers, ...options.headers },
   });
 
   if (!res.ok) {
@@ -56,6 +65,7 @@ export interface Project {
   description: string | null;
   created_at: string;
   repositories: Repository[];
+  role?: string; // OWNER | MEMBER | VIEWER — present when returned by membership endpoints
 }
 
 export interface FileEntry {
@@ -109,6 +119,7 @@ export interface ChatResponse {
   intent: string;
   answer: string;
   sources: Source[];
+  conversation_id?: number;
 }
 
 export interface SearchResult {
@@ -129,6 +140,31 @@ export interface SearchResult {
 export const api = {
   health: () => request<{ status: string, groq_configured?: boolean, gemini_configured?: boolean }>("/health"),
 
+  auth: {
+    login: (username: string, password: string) => {
+      // OAuth2PasswordRequestForm needs form-data 
+      const fd = new URLSearchParams();
+      fd.append("username", username);
+      fd.append("password", password);
+      return fetch(`${BASE}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: fd
+      }).then(res => {
+        if (!res.ok) throw new Error("Invalid login");
+        return res.json() as Promise<{access_token: string}>;
+      });
+    },
+    register: (name: string, email: string, password: string) => 
+      request<{access_token: string}>("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ name, email, password }),
+      }),
+    me: () => request<{id: number, name: string, email: string}>("/api/auth/me"),
+  },
+
   projects: {
     list: () => request<Project[]>("/api/projects"),
     get: (id: number) => request<Project>(`/api/projects/${id}`),
@@ -136,6 +172,19 @@ export const api = {
       request<Project>("/api/projects", {
         method: "POST",
         body: JSON.stringify({ name, description }),
+      }),
+    delete: (id: number) =>
+      request<void>(`/api/projects/${id}`, {
+        method: "DELETE",
+      }),
+    members: (id: number) => request<{ members: any[], pending_invitations: any[] }>(`/api/projects/${id}/members`),
+    createInvitation: (id: number, role: string) => 
+      request<{ id: number, token: string, role: string, expires_at: string }>(`/api/projects/${id}/invitations`, {
+        method: "POST", body: JSON.stringify({ role })
+      }),
+    acceptInvitation: (token: string) => 
+      request<{ status: string, project_id: number }>("/api/projects/invitations/accept", {
+        method: "POST", body: JSON.stringify({ token })
       }),
   },
 
@@ -170,16 +219,23 @@ export const api = {
       ),
   },
 
-  chat: (query: string, projectId?: number, repositoryId?: number, provider?: string) =>
+  chat: (query: string, projectId?: number, repositoryId?: number, provider?: string, conversationId?: number) =>
     request<ChatResponse>("/api/chat", {
       method: "POST",
-      body: JSON.stringify({ query, project_id: projectId, repository_id: repositoryId, provider }),
+      body: JSON.stringify({ query, project_id: projectId, repository_id: repositoryId, provider, conversation_id: conversationId }),
     }),
 
-  search: (query: string, limit = 8) =>
+  conversations: {
+    list: (projectId: number) =>
+      request<any[]>(`/api/chat/conversations?project_id=${projectId}`),
+    get: (conversationId: number) =>
+      request<any>(`/api/chat/conversations/${conversationId}`),
+  },
+
+  search: (query: string, projectId: number, limit = 8) =>
     request<{ query: string; results: SearchResult[] }>("/api/search", {
       method: "POST",
-      body: JSON.stringify({ query, limit }),
+      body: JSON.stringify({ query, limit, project_id: projectId }),
     }),
 
   agent: {

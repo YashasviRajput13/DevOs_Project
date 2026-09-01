@@ -21,7 +21,7 @@ class CodeSearchService:
         self.db = db
         self.embedding_service = EmbeddingService()
 
-    def search(self, query: str, limit: int = 5) -> list[dict]:
+    def search(self, query: str, limit: int = 5, project_id: int | None = None) -> list[dict]:
         """
         Semantically search code chunks.
 
@@ -37,12 +37,20 @@ class CodeSearchService:
             dtype=np.float32,
         )
 
-        chunks = (
+        base_query = (
             self.db.query(CodeChunk)
+            .join(File, CodeChunk.file_id == File.id)
+            .join(File.repository)
             .options(joinedload(CodeChunk.file).joinedload(File.repository))
             .filter(CodeChunk.embedding.isnot(None))
-            .all()
         )
+        
+        if project_id is not None:
+             # We rely on File.repository joining already to `repositories` mapped naturally via SQLAlchemy relationships
+             from app.models.repository import Repository
+             base_query = base_query.filter(Repository.project_id == project_id)
+
+        chunks = base_query.all()
 
         results = []
         for chunk in chunks:

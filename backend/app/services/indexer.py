@@ -92,6 +92,7 @@ class RepositoryIndexer:
 
             except Exception as e:
                 print(f"Failed to index {path}: {e}")
+                self.db.rollback()
 
         # Flush so all file IDs are stable before analysis
         self.db.flush()
@@ -253,5 +254,13 @@ class RepositoryIndexer:
         ignored = [
             ".git/", "__pycache__/", "node_modules/",
             ".venv/", "venv/", "dist/", "build/",
+            "package-lock.json", "poetry.lock", "yarn.lock"
         ]
-        return any(path.startswith(item) for item in ignored)
+        if any(item in path for item in ignored):
+            return True
+            
+        ext = path.split(".")[-1].lower() if "." in path else ""
+        if ext in ["png", "jpg", "jpeg", "gif", "webp", "pdf", "zip", "tar", "gz", "mp3", "mp4", "wav", "sqlite3", "pyc", "pkl"]:
+            return True
+            
+        return False

@@ -18,9 +18,11 @@ from app.database import get_db
 from app.models.file import File
 from app.models.project import Project
 from app.models.repository import Repository
+from app.models.user import User, RoleEnum
 from app.services.architecture import ArchitectureService
 from app.services.indexer import RepositoryIndexer
 from app.services.overview import RepositoryOverviewService
+from app.services.auth import get_current_user, verify_project_access
 
 router = APIRouter(prefix="/api/projects", tags=["Repositories"])
 
@@ -32,7 +34,9 @@ class RepositoryCreate(BaseModel):
 # ── List repositories ──────────────────────────────────────────────────────
 
 @router.get("/{project_id}/repositories")
-def list_repositories(project_id: int, db: Session = Depends(get_db)):
+def list_repositories(project_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    verify_project_access(db, current_user.id, project_id)
+
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -63,8 +67,11 @@ def list_repositories(project_id: int, db: Session = Depends(get_db)):
 def add_repository(
     project_id: int,
     data: RepositoryCreate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    verify_project_access(db, current_user.id, project_id, [RoleEnum.OWNER, RoleEnum.ADMIN])
+
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -133,8 +140,11 @@ def add_repository(
 async def index_repository(
     project_id: int,
     repository_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    verify_project_access(db, current_user.id, project_id, [RoleEnum.OWNER, RoleEnum.ADMIN, RoleEnum.MEMBER])
+
     repository = (
         db.query(Repository)
         .filter(
@@ -170,7 +180,6 @@ async def index_repository(
             ),
         )
     except ValueError as exc:
-        # Raised by GitHubService or LLMService when a required env var is missing
         logger.error("index: configuration error for repo=%s — %s", repository_id, exc)
         raise HTTPException(status_code=422, detail=str(exc))
     except Exception as exc:
@@ -181,14 +190,43 @@ async def index_repository(
         )
 
 
+# ── Delete repository ──────────────────────────────────────────────────────
+@router.delete("/{project_id}/repositories/{repository_id}", status_code=204)
+def delete_repository(
+    project_id: int,
+    repository_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    verify_project_access(db, current_user.id, project_id, [RoleEnum.OWNER, RoleEnum.ADMIN])
+    
+    repository = (
+        db.query(Repository)
+        .filter(
+            Repository.id == repository_id,
+            Repository.project_id == project_id,
+        )
+        .first()
+    )
+    if not repository:
+        raise HTTPException(status_code=404, detail="Repository not found")
+        
+    db.delete(repository)
+    db.commit()
+    return
+
+
 # ── Repository files ───────────────────────────────────────────────────────
 
 @router.get("/{project_id}/repositories/{repository_id}/files")
 def list_files(
     project_id: int,
     repository_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    verify_project_access(db, current_user.id, project_id)
+    
     repo = (
         db.query(Repository)
         .filter(
@@ -226,8 +264,11 @@ def get_file_content(
     project_id: int,
     repository_id: int,
     file_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    verify_project_access(db, current_user.id, project_id)
+    
     repo = (
         db.query(Repository)
         .filter(
@@ -264,8 +305,11 @@ def get_file_content(
 def repository_overview(
     project_id: int,
     repository_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    verify_project_access(db, current_user.id, project_id)
+    
     svc = RepositoryOverviewService(db)
     try:
         overview = svc.get_overview(project_id, repository_id)
@@ -289,8 +333,11 @@ def repository_overview(
 def repository_architecture(
     project_id: int,
     repository_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    verify_project_access(db, current_user.id, project_id)
+    
     svc = ArchitectureService(db)
     try:
         arch = svc.get_architecture(project_id, repository_id)

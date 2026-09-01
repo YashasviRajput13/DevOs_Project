@@ -43,3 +43,15 @@ class Project(Base):
         back_populates="project",
         cascade="all, delete-orphan"
     )
+
+    memberships = relationship(
+        "ProjectMembership",
+        back_populates="project",
+        cascade="all, delete-orphan"
+    )
+
+    invitations = relationship(
+        "ProjectInvitation",
+        back_populates="project",
+        cascade="all, delete-orphan"
+    )

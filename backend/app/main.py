@@ -33,7 +33,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from app.api.auth import router as auth_router
+
 # ── Routers ───────────────────────────────────────────────────────────────
+app.include_router(auth_router)          # /api/auth
 app.include_router(projects_router)       # /api/projects
 app.include_router(repositories_router)  # /api/projects/{id}/repositories/...
 app.include_router(search_router)        # /api/search

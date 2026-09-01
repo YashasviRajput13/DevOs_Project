@@ -63,6 +63,7 @@ class ChatRequest(BaseModel):
     project_id: int | None = None
     repository_id: int | None = None
     provider: str = Field(default="devos_auto")
+    conversation_id: int | None = None
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
@@ -91,9 +92,14 @@ def _search_chunks(db: Session, query: str, limit: int) -> list[dict]:
 
 
 # ── Endpoint ───────────────────────────────────────────────────────────────
+from app.models.user import User, RoleEnum
+from app.services.auth import get_current_user, verify_project_access
 
 @router.post("")
-def chat(data: ChatRequest, db: Session = Depends(get_db)):
+def chat(data: ChatRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if _has_repo_context(data):
+        verify_project_access(db, current_user.id, data.project_id)
+        
     logger.info(
         "chat: request received — query=%r project_id=%s repository_id=%s",
         data.query[:80],
@@ -141,7 +147,9 @@ def chat(data: ChatRequest, db: Session = Depends(get_db)):
         logger.info("chat: LLM response received (overview)")
         sources = _build_sources(chunks)
         logger.info("chat: request completed (overview)")
-        return {"query": data.query, "intent": "overview", "answer": answer, "sources": sources}
+        return _save_and_return_chat(db, current_user, data, {
+            "query": data.query, "intent": "overview", "answer": answer, "sources": sources
+        })
 
     # ── Architecture intent ─────────────────────────────────────────────────
     if intent == "architecture" and has_repo:
@@ -174,7 +182,9 @@ def chat(data: ChatRequest, db: Session = Depends(get_db)):
         logger.info("chat: LLM response received (architecture)")
         sources = _build_sources(chunks)
         logger.info("chat: request completed (architecture)")
-        return {"query": data.query, "intent": "architecture", "answer": answer, "sources": sources}
+        return _save_and_return_chat(db, current_user, data, {
+            "query": data.query, "intent": "architecture", "answer": answer, "sources": sources
+        })
 
     # ── Standard RAG path ───────────────────────────────────────────────────
     #
@@ -219,12 +229,12 @@ def chat(data: ChatRequest, db: Session = Depends(get_db)):
             raise HTTPException(status_code=500, detail=f"LLM generation failed: {exc}")
         logger.info("chat: LLM response received (no-context path)")
         logger.info("chat: request completed (no-context path)")
-        return {
+        return _save_and_return_chat(db, current_user, data, {
             "query": data.query,
             "intent": "rag",
             "answer": answer,
             "sources": [],
-        }
+        })
 
     context = _format_chunk_context(unique_results)
 
@@ -239,12 +249,88 @@ def chat(data: ChatRequest, db: Session = Depends(get_db)):
     logger.info("chat: LLM response received (RAG path)")
     sources = _build_sources(unique_results)
     logger.info("chat: request completed (RAG path)")
-    return {
+    
+    # === Save to Conversation History (Final Wrapper) ===
+    # For any intent (we just put it here since it's the common exit point for most, wait!
+    # Overview and Architecture exit early. We need to save those too.
+    # We should actually wrap all return calls. Let's write a helper and call it.)
+    #
+    # Instead of refactoring all distinct returns, I will inject the DB logic directly before returning.
+    ans_data = {
         "query": data.query,
         "intent": "rag",
         "answer": answer,
         "sources": sources,
     }
+    
+    return _save_and_return_chat(db, current_user, data, ans_data)
+
+from app.models.chat import Conversation, Message
+
+def _save_and_return_chat(db: Session, user: User, req: ChatRequest, result: dict):
+    if not req.project_id:
+        return result
+        
+    conv_id = req.conversation_id
+    if not conv_id:
+        conv = Conversation(
+            user_id=user.id,
+            project_id=req.project_id,
+            repository_id=req.repository_id,
+            title=req.query[:50] + "..." if len(req.query) > 50 else req.query
+        )
+        db.add(conv)
+        db.commit()
+        db.refresh(conv)
+        conv_id = conv.id
+        
+    db.add(Message(
+        conversation_id=conv_id,
+        role="user",
+        content=req.query,
+        context_files=None
+    ))
+    db.commit()
+    
+    db.add(Message(
+        conversation_id=conv_id,
+        role="assistant",
+        content=result["answer"],
+        context_files=result.get("sources")
+    ))
+    db.commit()
+    
+    result["conversation_id"] = conv_id
+    return result
+
+@router.get("/conversations")
+def list_conversations(project_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    verify_project_access(db, current_user.id, project_id)
+    convs = db.query(Conversation).filter(Conversation.project_id == project_id, Conversation.user_id == current_user.id).order_by(Conversation.updated_at.desc()).all()
+    return [{
+        "id": c.id, "title": c.title, "repository_id": c.repository_id, "updated_at": c.updated_at.isoformat()
+    } for c in convs]
+
+
+@router.get("/conversations/{conversation_id}")
+def get_conversation(conversation_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    conv = db.query(Conversation).filter(Conversation.id == conversation_id, Conversation.user_id == current_user.id).first()
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+        
+    msgs = db.query(Message).filter(Message.conversation_id == conv.id).order_by(Message.created_at.asc()).all()
+    return {
+        "id": conv.id,
+        "title": conv.title,
+        "messages": [{
+            "id": m.id,
+            "role": m.role,
+            "content": m.content,
+            "sources": m.context_files,
+            "created_at": m.created_at.isoformat()
+        } for m in msgs]
+    }
+
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────

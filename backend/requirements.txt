@@ -12,3 +12,9 @@ torch>=2.7.1
 sentence-transformers>=5.5.1
 SQLAlchemy>=2.0.48
 uvicorn[standard]>=0.48.0
+passlib>=1.7.4
+bcrypt==3.2.2
+PyJWT>=2.8.0
+google-generativeai
+email-validator
+python-multipart
