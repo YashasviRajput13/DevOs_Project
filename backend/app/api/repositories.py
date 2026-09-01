@@ -76,7 +76,7 @@ def add_repository(
         raise HTTPException(status_code=400, detail="Invalid GitHub repository URL")
 
     owner = parts[-2]
-    name = parts[-1]
+    name = parts[-1].removesuffix(".git")  # strip .git suffix if present
 
     # Prevent duplicates within same project
     existing = (

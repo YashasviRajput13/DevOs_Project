@@ -36,7 +36,13 @@ class GitHubService:
             "X-GitHub-Api-Version": "2022-11-28",
         }
 
+    @staticmethod
+    def _clean_repo(repo: str) -> str:
+        """Strip trailing .git suffix GitHub URLs often carry."""
+        return repo.removesuffix(".git")
+
     async def get_repository(self, owner: str, repo: str):
+        repo = self._clean_repo(repo)
         url = f"{self.base_url}/repos/{owner}/{repo}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -44,6 +50,7 @@ class GitHubService:
         return response.json()
 
     async def get_tree(self, owner: str, repo: str, branch: str):
+        repo = self._clean_repo(repo)
         url = f"{self.base_url}/repos/{owner}/{repo}/git/trees/{branch}"
         async with httpx.AsyncClient() as client:
             response = await client.get(
@@ -53,6 +60,7 @@ class GitHubService:
         return response.json()
 
     async def get_file_content(self, owner: str, repo: str, path: str):
+        repo = self._clean_repo(repo)
         url = f"{self.base_url}/repos/{owner}/{repo}/contents/{path}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
