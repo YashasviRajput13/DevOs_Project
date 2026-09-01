@@ -23,12 +23,18 @@ export default function LandingPage() {
       overflowX: "hidden",
       position: "relative"
     }}>
-      {/* Background glowing gradients */}
-      <div style={{
-        position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-        width: "100%", maxWidth: 1000, height: 500, opacity: 0.3, pointerEvents: "none",
-        background: "radial-gradient(ellipse at top, rgba(99, 102, 241, 0.4) 0%, rgba(6, 6, 12, 0) 70%)"
-      }} />
+      {/* Uiverse Midnight Sky Background */}
+      <div className="uiverse-midnight-sky" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" }}>
+        <div className="sky-canvas">
+          <div className="stars stars-1"></div>
+          <div className="stars stars-2"></div>
+          <div className="stars stars-3"></div>
+          <div className="meteor m1"></div>
+          <div className="meteor m2"></div>
+          <div className="meteor m3"></div>
+          <div className="moon"></div>
+        </div>
+      </div>
 
       {/* Navbar */}
       <header style={{
