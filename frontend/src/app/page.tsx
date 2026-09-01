@@ -78,19 +78,7 @@ export default function LandingPage() {
           paddingLeft: 24, paddingRight: 24, maxWidth: 1200, margin: "0 auto",
           textAlign: "center", zIndex: 10
         }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px",
-            borderRadius: 999, border: "1px solid rgba(99,102,241,0.3)",
-            backgroundColor: "rgba(99,102,241,0.1)", color: "var(--accent-hover)",
-            fontSize: 12, fontWeight: 600, marginBottom: 32, backdropFilter: "blur(4px)",
-            boxShadow: "0 0 20px rgba(99,102,241,0.15)"
-          }}>
-            <span style={{
-              width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--accent)",
-              boxShadow: "0 0 10px var(--accent)"
-            }}></span>
-            AI-powered developer intelligence
-          </div>
+
 
           <h1 style={{
             fontSize: isMobile ? 42 : 72, fontWeight: 800, letterSpacing: "-0.03em",
