@@ -1,33 +1,70 @@
+"use client";
 import Link from "next/link";
-import { ArrowRight, Box, Code2, Database, LayoutGrid, MessageSquare, Network, Search, Terminal } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function LandingPage() {
+  const [windowWidth, setWindowWidth] = useState(1200);
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
+
   return (
-    <div className="min-h-screen bg-[#06060c] text-white selection:bg-indigo-500/30 font-sans overflow-hidden">
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: "#06060c",
+      color: "var(--text)",
+      fontFamily: "var(--font-sans, system-ui, sans-serif)",
+      overflowX: "hidden",
+      position: "relative"
+    }}>
       {/* Background glowing gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[500px] opacity-30 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at top, rgba(99, 102, 241, 0.4) 0%, rgba(6, 6, 12, 0) 70%)" }} />
+      <div style={{
+        position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
+        width: "100%", maxWidth: 1000, height: 500, opacity: 0.3, pointerEvents: "none",
+        background: "radial-gradient(ellipse at top, rgba(99, 102, 241, 0.4) 0%, rgba(6, 6, 12, 0) 70%)"
+      }} />
 
       {/* Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]">
-              D
-            </div>
-            <span className="font-semibold text-lg tracking-tight">DevOs</span>
+      <header style={{
+        position: "sticky", top: 0, zIndex: 50, width: "100%",
+        borderBottom: "1px solid rgba(255,255,255,0.05)",
+        background: "rgba(10, 10, 15, 0.8)", backdropFilter: "blur(12px)"
+      }}>
+        <div style={{
+          maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 64,
+          display: "flex", alignItems: "center", justifyContent: "space-between"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{
+              width: 28, height: 28, backgroundColor: "var(--accent)", borderRadius: 8,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontWeight: 700, color: "white", boxShadow: "0 0 15px rgba(99,102,241,0.5)"
+            }}>D</div>
+            <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: "-0.02em" }}>DevOs</span>
           </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
-            <Link href="#product" className="hover:text-white transition-colors">Product</Link>
-            <Link href="#features" className="hover:text-white transition-colors">Features</Link>
-            <Link href="#how-it-works" className="hover:text-white transition-colors">How it Works</Link>
-            <Link href="#architecture" className="hover:text-white transition-colors">Architecture</Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm font-medium text-slate-300 hover:text-white transition-colors hidden sm:block">
-              Sign In
-            </Link>
-            <Link href="/dashboard" className="text-sm font-medium bg-white text-black px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors">
+          {!isMobile && (
+            <nav style={{ display: "flex", alignItems: "center", gap: 32, fontSize: 14, fontWeight: 500 }}>
+              <a href="#features" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Features</a>
+              <a href="#how-it-works" style={{ color: "var(--text-muted)", textDecoration: "none" }}>How it Works</a>
+              <a href="#architecture" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Architecture</a>
+            </nav>
+          )}
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            {!isMobile && (
+              <Link href="/dashboard" style={{ fontSize: 14, fontWeight: 500, color: "var(--text-muted)", textDecoration: "none" }}>
+                Sign In
+              </Link>
+            )}
+            <Link href="/dashboard" style={{
+              fontSize: 14, fontWeight: 500, backgroundColor: "white", color: "black",
+              padding: "8px 16px", borderRadius: 8, textDecoration: "none", transition: "background 0.2s"
+            }}>
               Get Started
             </Link>
           </div>
@@ -36,141 +73,196 @@ export default function LandingPage() {
 
       <main>
         {/* HERO SECTION */}
-        <section className="relative pt-32 pb-20 px-6 max-w-7xl mx-auto text-center z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-semibold mb-8 backdrop-blur-sm shadow-[0_0_20px_rgba(99,102,241,0.15)]">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-            </span>
+        <section style={{
+          position: "relative", paddingTop: isMobile ? 80 : 120, paddingBottom: 80,
+          paddingLeft: 24, paddingRight: 24, maxWidth: 1200, margin: "0 auto",
+          textAlign: "center", zIndex: 10
+        }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px",
+            borderRadius: 999, border: "1px solid rgba(99,102,241,0.3)",
+            backgroundColor: "rgba(99,102,241,0.1)", color: "var(--accent-hover)",
+            fontSize: 12, fontWeight: 600, marginBottom: 32, backdropFilter: "blur(4px)",
+            boxShadow: "0 0 20px rgba(99,102,241,0.15)"
+          }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--accent)",
+              boxShadow: "0 0 10px var(--accent)"
+            }}></span>
             AI-powered developer intelligence
           </div>
-          
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]">
+
+          <h1 style={{
+            fontSize: isMobile ? 42 : 72, fontWeight: 800, letterSpacing: "-0.03em",
+            marginBottom: 24, lineHeight: 1.1, color: "white"
+          }}>
             Understand. Build. Ship.<br />
-            With the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Power of AI.</span>
+            With the <span style={{
+              background: "linear-gradient(to right, #818cf8, #c084fc)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
+            }}>Power of AI.</span>
           </h1>
-          
-          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+
+          <p style={{
+            fontSize: isMobile ? 16 : 20, color: "var(--text-muted)", maxWidth: 680, margin: "0 auto",
+            marginBottom: 48, lineHeight: 1.6
+          }}>
             DevOs transforms your GitHub repositories into an intelligent workspace where you can explore code, understand architecture, and collaborate with AI.
           </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-            <Link href="/dashboard" className="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)]">
+
+          <div style={{
+            display: "flex", flexDirection: isMobile ? "column" : "row",
+            alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 80
+          }}>
+            <Link href="/dashboard" style={{
+              width: isMobile ? "100%" : "auto", padding: "14px 32px",
+              backgroundColor: "var(--accent)", color: "white", borderRadius: 12,
+              fontSize: 15, fontWeight: 500, textDecoration: "none",
+              boxShadow: "0 0 30px rgba(99,102,241,0.3)"
+            }}>
               Get Started Free →
             </Link>
-            <Link href="#demo" className="w-full sm:w-auto px-8 py-3.5 border border-white/10 hover:bg-white/5 rounded-xl font-medium transition-colors text-slate-300">
+            <Link href="#demo" style={{
+              width: isMobile ? "100%" : "auto", padding: "14px 32px",
+              border: "1px solid rgba(255,255,255,0.1)", backgroundColor: "transparent",
+              color: "var(--text)", borderRadius: 12, fontSize: 15, fontWeight: 500,
+              textDecoration: "none"
+            }}>
               See DevOs in Action
             </Link>
           </div>
 
           {/* VIDEO SHOWCASE MOCKUP */}
-          <div id="demo" className="relative max-w-5xl mx-auto rounded-2xl border border-white/10 bg-[#0d0d14] shadow-2xl overflow-hidden mt-12 group">
-            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
-            
+          <div id="demo" style={{
+            position: "relative", maxWidth: 1024, margin: "0 auto", borderRadius: 16,
+            border: "1px solid rgba(255,255,255,0.1)", backgroundColor: "#0d0d14",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", overflow: "hidden"
+          }}>
+            <div style={{
+              position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(99,102,241,0.05), transparent)",
+              pointerEvents: "none"
+            }} />
+
             {/* Fake browser bar */}
-            <div className="h-12 border-b border-white/5 flex items-center px-4 gap-2 bg-black/40">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
-                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
-                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
+            <div style={{
+              height: 48, borderBottom: "1px solid rgba(255,255,255,0.05)",
+              display: "flex", alignItems: "center", padding: "0 16px", gap: 8, backgroundColor: "rgba(0,0,0,0.4)"
+            }}>
+              <div style={{ display: "flex", gap: 6 }}>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#334155" }}></div>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#334155" }}></div>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#334155" }}></div>
               </div>
-              <div className="mx-auto w-1/2 h-6 bg-white/5 rounded-md border border-white/5"></div>
+              <div style={{ margin: "0 auto", width: "50%", height: 24, backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 6, border: "1px solid rgba(255,255,255,0.05)" }}></div>
             </div>
 
             {/* Dashboard UI Mockup inside Video Container */}
-            <div className="relative aspect-video flex flex-col md:flex-row bg-[#08080c]">
-              
+            <div style={{
+              position: "relative", aspectRatio: "16/9", display: "flex",
+              flexDirection: isMobile ? "column" : "row", backgroundColor: "#08080c"
+            }}>
+
               {/* Play Button Overlay */}
-              <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all group-hover:bg-black/20 group-hover:backdrop-blur-0 cursor-pointer">
-                <div className="w-20 h-20 rounded-full bg-indigo-600/90 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-transform pl-1">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
+              <div style={{
+                position: "absolute", inset: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center",
+                backgroundColor: "rgba(0,0,0,0.4)", backdropFilter: "blur(2px)", cursor: "pointer"
+              }}>
+                <div style={{
+                  width: 80, height: 80, borderRadius: "50%", backgroundColor: "rgba(99,102,241,0.9)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 0 30px rgba(99,102,241,0.6)", paddingLeft: 4
+                }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z" /></svg>
                 </div>
               </div>
 
               {/* Sidebar Mockup */}
-              <div className="hidden md:flex w-48 border-r border-white/5 flex-col p-4 gap-4 opacity-50">
-                <div className="h-4 w-24 bg-white/10 rounded mb-4" />
-                <div className="h-8 w-full bg-white/5 rounded" />
-                <div className="h-8 w-full bg-white/5 rounded" />
-                <div className="h-8 w-full bg-indigo-500/20 rounded border border-indigo-500/30" />
-              </div>
-              
+              {!isMobile && (
+                <div style={{
+                  width: 200, borderRight: "1px solid rgba(255,255,255,0.05)",
+                  display: "flex", flexDirection: "column", padding: 16, gap: 16, opacity: 0.5
+                }}>
+                  <div style={{ height: 16, width: 96, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 4, marginBottom: 16 }} />
+                  <div style={{ height: 32, width: "100%", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 4 }} />
+                  <div style={{ height: 32, width: "100%", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 4 }} />
+                  <div style={{ height: 32, width: "100%", backgroundColor: "rgba(99,102,241,0.2)", borderRadius: 4, border: "1px solid rgba(99,102,241,0.3)" }} />
+                </div>
+              )}
+
               {/* Main Content Mockup */}
-              <div className="flex-1 p-6 md:p-8 flex flex-col gap-6 opacity-60">
-                <div className="flex justify-between items-center">
-                  <div className="h-6 w-48 bg-white/10 rounded" />
-                  <div className="h-6 w-24 bg-green-500/20 rounded-full border border-green-500/30" />
+              <div style={{ flex: 1, padding: isMobile ? 16 : 32, display: "flex", flexDirection: "column", gap: 24, opacity: 0.6 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ height: 24, width: 192, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 4 }} />
+                  <div style={{ height: 24, width: 96, backgroundColor: "rgba(34,197,94,0.2)", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)" }} />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="h-20 bg-white/5 rounded-xl border border-white/5" />
-                  <div className="h-20 bg-white/5 rounded-xl border border-white/5" />
-                  <div className="h-20 bg-white/5 rounded-xl border border-white/5" />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+                  <div style={{ height: 80, backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <div style={{ height: 80, backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <div style={{ height: 80, backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }} />
                 </div>
-                <div className="flex-1 flex gap-4">
-                  <div className="flex-1 bg-white/5 rounded-xl border border-white/5 p-4 flex flex-col gap-3">
-                    <div className="h-4 w-32 bg-white/10 rounded" />
-                    <div className="h-full bg-[#111118] rounded border border-white/5 p-3 flex flex-col gap-2">
-                      <div className="h-3 w-3/4 bg-white/5 rounded" />
-                      <div className="h-3 w-1/2 bg-white/5 rounded" />
-                      <div className="h-3 w-5/6 bg-white/5 rounded" />
+                <div style={{ flex: 1, display: "flex", gap: 16 }}>
+                  <div style={{ flex: 1, backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div style={{ height: 16, width: 128, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 4 }} />
+                    <div style={{ height: "100%", backgroundColor: "#111118", borderRadius: 4, border: "1px solid rgba(255,255,255,0.05)", padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div style={{ height: 12, width: "75%", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 4 }} />
+                      <div style={{ height: 12, width: "50%", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 4 }} />
+                      <div style={{ height: 12, width: "83%", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 4 }} />
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Video control bar fake */}
-              <div className="absolute bottom-0 left-0 right-0 h-10 bg-black/80 border-t border-white/10 flex items-center px-4 gap-4 z-20">
-                <div className="w-3 h-3 bg-white rounded-sm"></div>
-                <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
-                  <div className="w-1/3 h-full bg-indigo-500"></div>
+              <div style={{
+                position: "absolute", bottom: 0, left: 0, right: 0, height: 40,
+                backgroundColor: "rgba(0,0,0,0.8)", borderTop: "1px solid rgba(255,255,255,0.1)",
+                display: "flex", alignItems: "center", padding: "0 16px", gap: 16, zIndex: 20
+              }}>
+                <div style={{ width: 12, height: 12, backgroundColor: "white", borderRadius: 2 }}></div>
+                <div style={{ flex: 1, height: 4, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 2, overflow: "hidden" }}>
+                  <div style={{ width: "33%", height: "100%", backgroundColor: "var(--accent)" }}></div>
                 </div>
-                <div className="text-[10px] text-white/50 font-mono">0:42 / 2:15</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>0:42 / 2:15</div>
               </div>
 
             </div>
           </div>
-          
-          <div className="mt-16 text-slate-500 text-sm font-medium tracking-wide text-center">
-            Built for developers who want to understand their code faster.
-          </div>
         </section>
 
         {/* FEATURES SECTION */}
-        <section id="features" className="py-24 px-6 relative">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything you need to understand your codebase</h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Turn raw source code into navigable, intelligent insights powered by LLMs.</p>
+        <section id="features" style={{ padding: "96px 24px", position: "relative" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 64 }}>
+              <h2 style={{ fontSize: isMobile ? 28 : 36, fontWeight: 700, marginBottom: 16 }}>Everything you need to understand your codebase</h2>
+              <p style={{ color: "var(--text-muted)", maxWidth: 680, margin: "0 auto", fontSize: 16 }}>
+                Turn raw source code into navigable, intelligent insights powered by LLMs.
+              </p>
             </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <FeatureCard 
-                icon={<Search size={24} className="text-indigo-400" />}
+
+            <div style={{
+              display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 24
+            }}>
+              <FeatureCard
                 title="Intelligent Code Search"
                 desc="Find relevant files, functions, dependencies, and implementation details quickly using semantic vector search."
               />
-              <FeatureCard 
-                icon={<Network size={24} className="text-purple-400" />}
+              <FeatureCard
                 title="Architecture Intelligence"
                 desc="Visualize and understand how your application components work together and map out critical dependencies."
               />
-              <FeatureCard 
-                icon={<MessageSquare size={24} className="text-blue-400" />}
+              <FeatureCard
                 title="AI Code Chat"
                 desc="Ask questions about your actual codebase and receive context-aware answers directly linked to your files."
               />
-              <FeatureCard 
-                icon={<Database size={24} className="text-emerald-400" />}
+              <FeatureCard
                 title="Repository Indexing"
                 desc="Index GitHub repositories into searchable semantic chunks and embeddings seamlessly in the background."
               />
-              <FeatureCard 
-                icon={<Box size={24} className="text-pink-400" />}
+              <FeatureCard
                 title="AI Repository Understanding"
                 desc="Give AI the context of your entire repository instead of isolated files to get system-wide insights."
               />
-              <FeatureCard 
-                icon={<Terminal size={24} className="text-cyan-400" />}
+              <FeatureCard
                 title="AI Developer Agent"
                 desc="Use AI assistance to investigate bugs, plan refactoring, and generate executable change plans for your codebase."
               />
@@ -179,81 +271,116 @@ export default function LandingPage() {
         </section>
 
         {/* HOW IT WORKS */}
-        <section id="how-it-works" className="py-24 px-6 bg-[#0a0a0f] border-y border-white/5 relative overflow-hidden">
+        <section id="how-it-works" style={{
+          padding: "96px 24px", backgroundColor: "#0a0a0f",
+          borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)",
+          position: "relative", overflow: "hidden"
+        }}>
           {/* Radial glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[600px] opacity-10 pointer-events-none bg-indigo-500 rounded-full blur-[120px]" />
+          <div style={{
+            position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+            width: "100%", maxWidth: 800, height: 600, opacity: 0.1, pointerEvents: "none",
+            backgroundColor: "var(--accent)", borderRadius: "50%", filter: "blur(120px)"
+          }} />
 
-          <div className="max-w-7xl mx-auto relative z-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">How DevOs works</h2>
-            
-            <div className="grid md:grid-cols-3 gap-12 relative">
+          <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 10 }}>
+            <h2 style={{ fontSize: isMobile ? 28 : 36, fontWeight: 700, textAlign: "center", marginBottom: 64 }}>How DevOs works</h2>
+
+            <div style={{
+              display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 48, position: "relative"
+            }}>
               {/* Connecting line */}
-              <div className="hidden md:block absolute top-[28px] left-[15%] right-[15%] h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
-              
-              <StepItem 
-                num="01" 
-                title="Connect GitHub" 
-                desc="Connect your repository securely in seconds. No complex setup required." 
+              {!isMobile && (
+                <div style={{
+                  position: "absolute", top: 28, left: "15%", right: "15%", height: 1,
+                  background: "linear-gradient(to right, transparent, rgba(99,102,241,0.5), transparent)"
+                }} />
+              )}
+
+              <StepItem
+                num="01"
+                title="Connect GitHub"
+                desc="Connect your repository securely in seconds. No complex setup required."
               />
-              <StepItem 
-                num="02" 
-                title="Index & Understand" 
-                desc="DevOs automatically analyzes files, code structure, dependencies, and extracts semantic chunks." 
+              <StepItem
+                num="02"
+                title="Index & Understand"
+                desc="DevOs automatically analyzes files, code structure, dependencies, and extracts semantic chunks."
               />
-              <StepItem 
-                num="03" 
-                title="Ask & Build" 
-                desc="Chat with your repository, explore architecture, and use AI to work significantly faster." 
+              <StepItem
+                num="03"
+                title="Ask & Build"
+                desc="Chat with your repository, explore architecture, and use AI to work significantly faster."
               />
             </div>
           </div>
         </section>
 
-        {/* AI & ARCHITECTURE VISUALIZATION */}
-        <section id="architecture" className="py-24 px-6 max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            
+        {/* ARCHITECTURE VISUALIZATION */}
+        <section id="architecture" style={{ padding: "96px 24px" }}>
+          <div style={{
+            maxWidth: 1200, margin: "0 auto", display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 64, alignItems: "center"
+          }}>
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Your repository, understood by AI.</h2>
-              <p className="text-slate-400 mb-8 text-lg">
-                We've built a pipeline that transforms plain text code into a rich knowledge graph. 
+              <h2 style={{ fontSize: isMobile ? 28 : 36, fontWeight: 700, marginBottom: 24 }}>Your repository, understood by AI.</h2>
+              <p style={{ color: "var(--text-muted)", marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
+                We've built a pipeline that transforms plain text code into a rich knowledge graph.
                 Vector search ensures every AI response is strictly grounded in your actual implementation.
               </p>
-              
-              <div className="flex flex-col gap-4">
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <TechItem name="GitHub API" role="Source Control Integration" />
                 <TechItem name="FastAPI & PostgreSQL" role="High-performance backend & relational data" />
                 <TechItem name="Sentence Transformers" role="Local embeddings generation" />
                 <TechItem name="pgvector" role="Vector similarity search database" />
                 <TechItem name="Groq LLMs" role="Ultra-fast conversational AI inference" />
-                <TechItem name="React & Next.js" role="Interactive frontend experience" />
               </div>
             </div>
 
             {/* AI Example UI Mockup */}
-            <div className="bg-[#111118] border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              <div className="flex flex-col gap-6 relative z-10">
+            <div style={{
+              backgroundColor: "#111118", border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 16, padding: 24, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+              position: "relative", overflow: "hidden"
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 24, position: "relative", zIndex: 10 }}>
                 {/* User message */}
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0 border border-white/10 text-xs text-white">U</div>
-                  <div className="bg-white/5 border border-white/5 p-4 rounded-2xl rounded-tl-sm text-sm text-slate-200">
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: "50%", backgroundColor: "#1e293b",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0, border: "1px solid rgba(255,255,255,0.1)", fontSize: 12, color: "white"
+                  }}>U</div>
+                  <div style={{
+                    backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.05)",
+                    padding: 16, borderRadius: 16, borderTopLeftRadius: 4, fontSize: 14, color: "#e2e8f0"
+                  }}>
                     Explain how authentication works in this repository.
                   </div>
                 </div>
-                
+
                 {/* AI response */}
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.4)] text-white text-xs font-bold">D</div>
-                  <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-2xl rounded-tl-sm text-sm text-indigo-100 leading-relaxed shadow-sm">
-                    <p className="mb-3">Authentication is handled through the API authentication layer via JWT tokens.</p>
-                    <div className="bg-[#0a0a0f] p-3 rounded-lg border border-white/5 mb-3 font-mono text-[11px] text-slate-300">
-                      <span className="text-purple-400">import</span> jwt<br/>
-                      <span className="text-blue-400">def</span> <span className="text-yellow-200">verify_token</span>(token: str):<br/>
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: 8, backgroundColor: "var(--accent)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0, boxShadow: "0 0 10px rgba(99,102,241,0.4)", fontSize: 12, fontWeight: 700, color: "white"
+                  }}>D</div>
+                  <div style={{
+                    backgroundColor: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
+                    padding: 16, borderRadius: 16, borderTopLeftRadius: 4, fontSize: 14, color: "#e0e7ff", lineHeight: 1.6
+                  }}>
+                    <p style={{ marginBottom: 12 }}>Authentication is handled through the API authentication layer via JWT tokens.</p>
+                    <div style={{
+                      backgroundColor: "#0a0a0f", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.05)",
+                      marginBottom: 12, fontFamily: "monospace", fontSize: 12, color: "#cbd5e1"
+                    }}>
+                      <span style={{ color: "#c084fc" }}>import</span> jwt<br />
+                      <span style={{ color: "#60a5fa" }}>def</span> <span style={{ color: "#fef08a" }}>verify_token</span>(token: str):<br />
                       &nbsp;&nbsp;&nbsp;&nbsp;payload = jwt.decode(token, JWT_SECRET)
                     </div>
-                    <p>The request is validated in <code className="text-indigo-300 bg-white/5 px-1.5 py-0.5 rounded">auth.py</code>, user context is established, and protected routes use the resulting state.</p>
+                    <p>The request is validated in <code style={{ backgroundColor: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: 4, color: "#a5b4fc" }}>auth.py</code>, user context is established, and protected routes use the resulting state.</p>
                   </div>
                 </div>
               </div>
@@ -263,9 +390,11 @@ export default function LandingPage() {
         </section>
 
         {/* BENEFITS SECTION */}
-        <section className="py-24 px-6 bg-[#0a0a0f] border-t border-white/5">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <section style={{ padding: "96px 24px", backgroundColor: "#0a0a0f", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <div style={{
+              display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(4, 1fr)", gap: 32
+            }}>
               <BenefitBlock title="Understand faster" desc="Reduce the time spent navigating unfamiliar codebases and complex inheritance trees." />
               <BenefitBlock title="Find anything" desc="Search through your repository using semantic context instead of exact regex matches." />
               <BenefitBlock title="Ask your code" desc="Get robust AI answers grounded securely in your indexed repository chunks." />
@@ -275,18 +404,27 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-32 px-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-indigo-900/20 pointer-events-none" />
-          <div className="max-w-4xl mx-auto text-center relative z-10">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to understand your code differently?</h2>
-            <p className="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">
+        <section style={{ padding: "128px 24px", position: "relative", overflow: "hidden" }}>
+          <div style={{
+            position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent, rgba(49, 46, 129, 0.2))",
+            pointerEvents: "none"
+          }} />
+          <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 10 }}>
+            <h2 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 800, marginBottom: 24 }}>Ready to understand your code differently?</h2>
+            <p style={{ fontSize: 18, color: "var(--text-muted)", marginBottom: 40, lineHeight: 1.6 }}>
               Connect your repository and let DevOs become your AI-powered development workspace.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/dashboard" className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition-all shadow-[0_0_20px_rgba(99,102,241,0.4)]">
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "center", gap: 16 }}>
+              <Link href="/dashboard" style={{
+                padding: "14px 32px", backgroundColor: "var(--accent)", color: "white", borderRadius: 12,
+                fontSize: 15, fontWeight: 500, textDecoration: "none", boxShadow: "0 0 20px rgba(99,102,241,0.4)"
+              }}>
                 Get Started Free →
               </Link>
-              <Link href="#demo" className="px-8 py-3.5 bg-[#111118] border border-white/10 hover:border-white/30 text-white rounded-xl font-medium transition-all">
+              <Link href="#demo" style={{
+                padding: "14px 32px", backgroundColor: "#111118", border: "1px solid rgba(255,255,255,0.1)",
+                color: "white", borderRadius: 12, fontSize: 15, fontWeight: 500, textDecoration: "none"
+              }}>
                 Explore DevOs
               </Link>
             </div>
@@ -295,20 +433,22 @@ export default function LandingPage() {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/10 bg-[#06060c] py-12 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-indigo-500 rounded flex items-center justify-center font-bold text-white text-xs">D</div>
-            <span className="font-semibold text-slate-200 tracking-tight">DevOs</span>
+      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.1)", backgroundColor: "#06060c", padding: "48px 24px" }}>
+        <div style={{
+          maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row",
+          justifyContent: "space-between", alignItems: "center", gap: 24
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 24, height: 24, backgroundColor: "var(--accent)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white", fontSize: 12 }}>D</div>
+            <span style={{ fontWeight: 600, color: "#e2e8f0", letterSpacing: "-0.02em" }}>DevOs</span>
           </div>
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm text-slate-500">
-            <Link href="#product" className="hover:text-slate-300 transition-colors">Product</Link>
-            <Link href="#features" className="hover:text-slate-300 transition-colors">Features</Link>
-            <Link href="#" className="hover:text-slate-300 transition-colors">Documentation</Link>
-            <Link href="#architecture" className="hover:text-slate-300 transition-colors">Architecture</Link>
-            <Link href="#" className="hover:text-slate-300 transition-colors">GitHub</Link>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 32, fontSize: 14, color: "var(--text-muted)" }}>
+            <a href="#features" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Features</a>
+            <a href="#architecture" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Architecture</a>
+            <a href="#how-it-works" style={{ color: "var(--text-muted)", textDecoration: "none" }}>How it Works</a>
+            <a href="/dashboard" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Dashboard</a>
           </div>
-          <div className="text-slate-600 text-sm">
+          <div style={{ color: "var(--text-muted)", fontSize: 14 }}>
             © {new Date().getFullYear()} DevOs. All rights reserved.
           </div>
         </div>
@@ -319,37 +459,42 @@ export default function LandingPage() {
 
 // ── Components ────────────────────────────────────────────────────────────────
 
-function FeatureCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
+function FeatureCard({ title, desc }: { title: string, desc: string }) {
   return (
-    <div className="bg-[#0f0f15] border border-white/5 rounded-2xl p-6 hover:bg-[#13131a] hover:border-white/10 transition-all duration-300 group">
-      <div className="w-12 h-12 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-        {icon}
-      </div>
-      <h3 className="text-lg font-semibold mb-3 text-slate-200">{title}</h3>
-      <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+    <div style={{
+      backgroundColor: "#0f0f15", border: "1px solid rgba(255,255,255,0.05)",
+      borderRadius: 16, padding: "32px 24px", transition: "all 0.3s"
+    }}>
+      <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12, color: "#e2e8f0" }}>{title}</h3>
+      <p style={{ color: "var(--text-muted)", fontSize: 14, lineHeight: 1.6 }}>{desc}</p>
     </div>
   );
 }
 
 function StepItem({ num, title, desc }: { num: string, title: string, desc: string }) {
   return (
-    <div className="flex flex-col items-center text-center relative">
-      <div className="w-14 h-14 bg-[#111118] border border-indigo-500/30 text-indigo-400 font-bold text-lg rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(99,102,241,0.15)] relative z-10">
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", position: "relative" }}>
+      <div style={{
+        width: 56, height: 56, backgroundColor: "#111118", border: "1px solid rgba(99,102,241,0.3)",
+        color: "var(--accent-hover)", fontWeight: 700, fontSize: 18, borderRadius: 16,
+        display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24,
+        boxShadow: "0 0 20px rgba(99,102,241,0.15)", position: "relative", zIndex: 10
+      }}>
         {num}
       </div>
-      <h3 className="text-xl font-semibold mb-3 text-slate-200">{title}</h3>
-      <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+      <h3 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12, color: "#e2e8f0" }}>{title}</h3>
+      <p style={{ color: "var(--text-muted)", fontSize: 14, lineHeight: 1.6 }}>{desc}</p>
     </div>
   );
 }
 
 function TechItem({ name, role }: { name: string, role: string }) {
   return (
-    <div className="flex items-center gap-4 py-3 border-b border-white/5">
-      <div className="w-2 h-2 bg-indigo-500/50 rounded-full" />
+    <div style={{ display: "flex", alignItems: "center", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <div style={{ width: 8, height: 8, backgroundColor: "rgba(99,102,241,0.5)", borderRadius: "50%" }} />
       <div>
-        <div className="text-slate-200 font-medium text-sm">{name}</div>
-        <div className="text-slate-500 text-xs">{role}</div>
+        <div style={{ color: "#e2e8f0", fontWeight: 500, fontSize: 14 }}>{name}</div>
+        <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{role}</div>
       </div>
     </div>
   );
@@ -358,8 +503,8 @@ function TechItem({ name, role }: { name: string, role: string }) {
 function BenefitBlock({ title, desc }: { title: string, desc: string }) {
   return (
     <div>
-      <h4 className="text-lg font-semibold mb-2 text-slate-200">{title}</h4>
-      <p className="text-slate-400 text-sm">{desc}</p>
+      <h4 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: "#e2e8f0" }}>{title}</h4>
+      <p style={{ color: "var(--text-muted)", fontSize: 14, lineHeight: 1.6 }}>{desc}</p>
     </div>
   );
 }
