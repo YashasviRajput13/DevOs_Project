@@ -187,7 +187,7 @@ export default function Dashboard() {
                   </div>
                   <Link href={`/projects/${project.id}`} style={{
                     fontSize: 12, color: "var(--accent)", textDecoration: "none",
-                    padding: "4px 12px", borderRadius: 6, border: "1px solid rgba(99,102,241,0.2)",
+                    padding: "4px 12px", borderRadius: 6, border: "1px solid rgba(6,182,212,0.2)",
                   }}>
                     Manage →
                   </Link>

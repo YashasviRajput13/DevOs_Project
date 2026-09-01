@@ -1,7 +1,7 @@
 """
 llm.py
 ======
-LLM integration using Groq.
+LLM integration using Groq and Gemini.
 
 Provides separate prompt strategies for different intents so that
 the system prompt and instructions are always appropriate to the task.
@@ -14,9 +14,11 @@ Rules enforced in every prompt:
 - Recommendations must be separated from confirmed findings.
 """
 import logging
+from abc import ABC, abstractmethod
 
 from groq import Groq
 from httpx import Timeout
+import google.generativeai as genai
 
 logger = logging.getLogger(__name__)
 
@@ -35,37 +37,35 @@ _SYSTEM_PROMPT = (
 )
 
 
-class LLMService:
+class BaseLLMProvider(ABC):
+    @abstractmethod
+    def generate(self, question: str, context: str) -> str:
+        pass
 
-    def __init__(self):
-        settings = get_settings()
+    @abstractmethod
+    def generate_overview(self, query: str, context: str) -> str:
+        pass
 
-        api_key = settings.GROQ_API_KEY.strip()
-        model = settings.GROQ_MODEL.strip()
+    @abstractmethod
+    def generate_architecture(self, query: str, context: str) -> str:
+        pass
 
-        logger.info(
-            "LLMService: key_present=%s key_length=%d model=%s",
-            bool(api_key),
-            len(api_key),
-            model,
-        )
+    @abstractmethod
+    def generate_bug_analysis(self, query: str, context: str) -> str:
+        pass
 
-        if not api_key:
-            raise ValueError(
-                "GROQ_API_KEY is missing or empty. "
-                "Set it in the Render dashboard → Environment → GROQ_API_KEY."
-            )
+    @abstractmethod
+    def generate_change_plan(self, query: str, context: str) -> str:
+        pass
 
-        self.client = Groq(
-            api_key=api_key,
-            timeout=Timeout(25.0, connect=5.0),
-        )
-        self.model = model
+    @abstractmethod
+    def generate_agent(self, intent: str, query: str, context: str) -> str:
+        pass
 
-    # ------------------------------------------------------------------
-    # Core generation method (used by /api/chat — unchanged behaviour)
-    # ------------------------------------------------------------------
 
+class AbstractPromptMixin:
+    """Provides the standard prompts and delegates strictly to _call(prompt, json_mode)."""
+    
     def generate(self, question: str, context: str) -> str:
         prompt = (
             "Answer the user's question using the provided repository context.\n\n"
@@ -73,10 +73,6 @@ class LLMService:
             f"User Question:\n{question}"
         )
         return self._call(prompt)
-
-    # ------------------------------------------------------------------
-    # Overview
-    # ------------------------------------------------------------------
 
     def generate_overview(self, query: str, context: str) -> str:
         prompt = (
@@ -89,10 +85,6 @@ class LLMService:
         )
         return self._call(prompt)
 
-    # ------------------------------------------------------------------
-    # Architecture
-    # ------------------------------------------------------------------
-
     def generate_architecture(self, query: str, context: str) -> str:
         prompt = (
             "The user is asking an architecture or dependency question.\n"
@@ -103,10 +95,6 @@ class LLMService:
             f"User Question:\n{query}"
         )
         return self._call(prompt)
-
-    # ------------------------------------------------------------------
-    # Bug analysis
-    # ------------------------------------------------------------------
 
     def generate_bug_analysis(self, query: str, context: str) -> str:
         prompt = (
@@ -123,10 +111,6 @@ class LLMService:
             f"User Request:\n{query}"
         )
         return self._call(prompt)
-
-    # ------------------------------------------------------------------
-    # Change plan
-    # ------------------------------------------------------------------
 
     def generate_change_plan(self, query: str, context: str) -> str:
         prompt = (
@@ -152,29 +136,7 @@ class LLMService:
             f"Repository Context:\n{context}\n\n"
             f"User Request:\n{query}"
         )
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": _SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.1,
-                response_format={"type": "json_object"},
-            )
-            return response.choices[0].message.content or ""
-        except Exception as e:
-            e_str = str(e).lower()
-            logger.error("LLM generate_change_plan: Groq error — %s: %s", type(e).__name__, e)
-            if "invalid_api_key" in e_str or "unauthorized" in e_str or "401" in e_str:
-                raise ValueError("AI configuration error: Invalid API key") from None
-            if "context_length" in e_str or "maximum context" in e_str or "too many tokens" in e_str:
-                raise ValueError("AI service error: prompt too long") from None
-            raise ValueError(f"AI service unavailable: {type(e).__name__}: {str(e)[:200]}") from None
-
-    # ------------------------------------------------------------------
-    # General agent (DEBUG, EXPLAIN, IMPROVE, ANALYZE)
-    # ------------------------------------------------------------------
+        return self._call(prompt, json_mode=True)
 
     def generate_agent(self, intent: str, query: str, context: str) -> str:
         intent_instructions = {
@@ -211,27 +173,50 @@ class LLMService:
         )
         return self._call(prompt)
 
-    # ------------------------------------------------------------------
-    # Internal call
-    # ------------------------------------------------------------------
+    @abstractmethod
+    def _call(self, prompt: str, json_mode: bool = False) -> str:
+        pass
 
-    def _call(self, prompt: str) -> str:
+
+class GroqProvider(AbstractPromptMixin, BaseLLMProvider):
+
+    def __init__(self):
+        settings = get_settings()
+        api_key = settings.GROQ_API_KEY.strip()
+        self.model = settings.GROQ_MODEL.strip()
+
+        if not api_key:
+            raise ValueError(
+                "GROQ_API_KEY is missing or empty. "
+                "Set it in the Render dashboard → Environment → GROQ_API_KEY."
+            )
+
+        self.client = Groq(
+            api_key=api_key,
+            timeout=Timeout(25.0, connect=5.0),
+        )
+
+    def _call(self, prompt: str, json_mode: bool = False) -> str:
         logger.info("LLM _call: sending request to Groq (model=%s)", self.model)
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
+            kwargs = {
+                "model": self.model,
+                "messages": [
                     {"role": "system", "content": _SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
-                temperature=0.2,
-            )
+                "temperature": 0.1 if json_mode else 0.2,
+            }
+            if json_mode:
+                kwargs["response_format"] = {"type": "json_object"}
+
+            response = self.client.chat.completions.create(**kwargs)
             content = response.choices[0].message.content or ""
             logger.info("LLM _call: response received (%d chars)", len(content))
             return content
         except Exception as e:
             e_str = str(e).lower()
-            logger.error("LLM _call: Groq error — %s: %s", type(e).__name__, e)
+            logger.error("LLM _call: Groq error - %s: %s", type(e).__name__, e)
             if "invalid_api_key" in e_str or "unauthorized" in e_str or "401" in e_str:
                 raise ValueError("AI configuration error: Invalid API key") from None
             if "model" in e_str and ("not found" in e_str or "does not exist" in e_str):
@@ -239,5 +224,74 @@ class LLMService:
             if "timeout" in e_str or "timed out" in e_str:
                 raise ValueError("AI service timed out") from None
             if "context_length" in e_str or "maximum context" in e_str or "too many tokens" in e_str:
-                raise ValueError("AI service error: prompt too long — try a smaller repository or question") from None
+                raise ValueError("AI service error: prompt too long") from None
             raise ValueError(f"AI service unavailable: {type(e).__name__}: {str(e)[:200]}") from None
+
+
+class GeminiProvider(AbstractPromptMixin, BaseLLMProvider):
+
+    def __init__(self):
+        settings = get_settings()
+        api_key = settings.GEMINI_API_KEY.strip()
+        self.model_name = settings.GEMINI_MODEL.strip()
+
+        if not api_key:
+            raise ValueError("Gemini is not configured")
+
+        genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel(self.model_name)
+
+    def _call(self, prompt: str, json_mode: bool = False) -> str:
+        logger.info("LLM _call: sending request to Gemini (model=%s)", self.model_name)
+        try:
+            generation_config = genai.GenerationConfig(temperature=0.1 if json_mode else 0.2)
+            if json_mode:
+                generation_config.response_mime_type = "application/json"
+            
+            full_prompt = _SYSTEM_PROMPT + "\n\n" + prompt
+            response = self.model.generate_content(
+                full_prompt,
+                generation_config=generation_config
+            )
+            content = response.text or ""
+            logger.info("LLM _call: response received (%d chars)", len(content))
+            return content
+        except Exception as e:
+            logger.error("LLM _call: Gemini error - %s: %s", type(e).__name__, e)
+            raise ValueError("Gemini is currently unavailable.") from None
+
+
+def LLMService(provider: str = "devos_auto") -> BaseLLMProvider:
+    settings = get_settings()
+    has_groq = bool(settings.GROQ_API_KEY.strip())
+    has_gemini = bool(settings.GEMINI_API_KEY.strip())
+
+    if provider == "devos_auto":
+        # In DEVOS_AUTO mode, we prefer Gemini if available, fallback to Groq
+        if has_gemini:
+            try:
+                return GeminiProvider()
+            except Exception:
+                if has_groq:
+                    logger.warning("Gemini unavailable — DevOs switched to Groq.")
+                    return GroqProvider()
+                raise
+        elif has_groq:
+            return GroqProvider()
+        else:
+            raise ValueError("No AI providers configured in DevOs Auto.")
+
+    elif provider == "gemini":
+        return GeminiProvider()
+        
+    elif provider == "groq":
+        return GroqProvider()
+        
+    else:
+        # Default fallback
+        if has_groq:
+            return GroqProvider()
+        elif has_gemini:
+            return GeminiProvider()
+        else:
+            raise ValueError(f"Unknown provider '{provider}' and no valid fallbacks available.")

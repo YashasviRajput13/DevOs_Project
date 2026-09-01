@@ -124,6 +124,15 @@ export default function ChatPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  
+  const [provider, setProvider] = useState<string>("devos_auto");
+  const [geminiConfigured, setGeminiConfigured] = useState<boolean>(false);
+
+  useEffect(() => {
+    api.health().then((res: any) => {
+      setGeminiConfigured(!!res.gemini_configured);
+    }).catch(console.error);
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -138,7 +147,7 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const res = await api.chat(q, pid, rid);
+      const res = await api.chat(q, pid, rid, provider);
       setMessages(prev => prev.map(m =>
         m.id === loadingMsg.id
           ? { ...m, loading: false, content: res.answer, sources: res.sources, intent: res.intent }
@@ -157,6 +166,30 @@ export default function ChatPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "var(--bg)" }}>
+      {/* Settings / Model Provider Header */}
+      <div style={{ 
+        padding: "16px 32px", borderBottom: "1px solid var(--border)", 
+        display: "flex", alignItems: "center", gap: 12, flexShrink: 0
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-dim)" }}>AI Model</div>
+        <select 
+          value={provider} 
+          onChange={e => setProvider(e.target.value)}
+          disabled={loading}
+          style={{
+            padding: "8px 12px", borderRadius: 8, background: "var(--bg-card)",
+            border: "1px solid var(--border)", color: "var(--text)", fontSize: 13,
+            outline: "none", cursor: loading ? "not-allowed" : "pointer"
+          }}
+        >
+          <option value="devos_auto">DevOs Auto</option>
+          <option value="groq">Groq (Llama)</option>
+          <option value="gemini" disabled={!geminiConfigured}>
+            Google Gemini {geminiConfigured ? "● Available" : "○ Not configured"}
+          </option>
+        </select>
+      </div>
+
       {/* Messages */}
       <div style={{ flex: 1, overflow: "auto", padding: "28px 32px" }}>
         {messages.length === 0 ? (

@@ -79,7 +79,7 @@ function CodeViewer({ content, language, highlightLines }: { content: string; la
         return (
           <div key={i} id={`line-${lineNum}`} style={{
             display: "flex",
-            background: highlighted ? "rgba(99,102,241,0.12)" : "transparent",
+            background: highlighted ? "rgba(6,182,212,0.12)" : "transparent",
             borderLeft: highlighted ? "2px solid var(--accent)" : "2px solid transparent",
           }}>
             <span style={{

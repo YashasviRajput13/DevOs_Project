@@ -127,7 +127,7 @@ export interface SearchResult {
 // ── Projects ────────────────────────────────────────────────────────────────
 
 export const api = {
-  health: () => request<{ status: string }>("/health"),
+  health: () => request<{ status: string, groq_configured?: boolean, gemini_configured?: boolean }>("/health"),
 
   projects: {
     list: () => request<Project[]>("/api/projects"),
@@ -170,10 +170,10 @@ export const api = {
       ),
   },
 
-  chat: (query: string, projectId?: number, repositoryId?: number) =>
+  chat: (query: string, projectId?: number, repositoryId?: number, provider?: string) =>
     request<ChatResponse>("/api/chat", {
       method: "POST",
-      body: JSON.stringify({ query, project_id: projectId, repository_id: repositoryId }),
+      body: JSON.stringify({ query, project_id: projectId, repository_id: repositoryId, provider }),
     }),
 
   search: (query: string, limit = 8) =>

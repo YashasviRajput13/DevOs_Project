@@ -100,7 +100,7 @@ export default function OverviewPage() {
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {data.frameworks.map(f => (
               <span key={f} style={{
-                background: "var(--accent-dim)", border: "1px solid rgba(99,102,241,0.2)",
+                background: "var(--accent-dim)", border: "1px solid rgba(6,182,212,0.2)",
                 borderRadius: 6, padding: "4px 11px", fontSize: 12, color: "var(--accent-hover)",
               }}>{f}</span>
             ))}

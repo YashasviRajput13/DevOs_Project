@@ -62,6 +62,7 @@ class ChatRequest(BaseModel):
     # Optional repository scoping (enables overview/architecture answers)
     project_id: int | None = None
     repository_id: int | None = None
+    provider: str = Field(default="devos_auto")
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
@@ -131,7 +132,7 @@ def chat(data: ChatRequest, db: Session = Depends(get_db)):
 
         logger.info("chat: LLM request started (overview)")
         try:
-            llm = LLMService()
+            llm = LLMService(provider=data.provider)
             answer = llm.generate_overview(query=data.query, context=context)
         except Exception as exc:
             logger.error("chat: LLM request failed — %s", exc)
@@ -164,7 +165,7 @@ def chat(data: ChatRequest, db: Session = Depends(get_db)):
 
         logger.info("chat: LLM request started (architecture)")
         try:
-            llm = LLMService()
+            llm = LLMService(provider=data.provider)
             answer = llm.generate_architecture(query=data.query, context=context)
         except Exception as exc:
             logger.error("chat: LLM request failed — %s", exc)
@@ -211,7 +212,7 @@ def chat(data: ChatRequest, db: Session = Depends(get_db)):
         )
         logger.info("chat: LLM request started (no-context path)")
         try:
-            llm = LLMService()
+            llm = LLMService(provider=data.provider)
             answer = llm.generate(question=data.query, context=context)
         except Exception as exc:
             logger.error("chat: LLM request failed — %s", exc)
@@ -229,7 +230,7 @@ def chat(data: ChatRequest, db: Session = Depends(get_db)):
 
     logger.info("chat: LLM request started (RAG path)")
     try:
-        llm = LLMService()
+        llm = LLMService(provider=data.provider)
         answer = llm.generate(question=data.query, context=context)
     except Exception as exc:
         logger.error("chat: LLM request failed — %s", exc)

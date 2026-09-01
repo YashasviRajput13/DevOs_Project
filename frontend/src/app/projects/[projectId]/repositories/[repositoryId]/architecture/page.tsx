@@ -55,7 +55,7 @@ function DependencyGraph({ components, services, api_routes }: Pick<Architecture
           <g key={n.id} style={{ cursor: "pointer" }}>
             <rect x={n.x} y={n.y} width={112} height={36} rx={6}
               fill={n.type === "service" ? "var(--accent-dim)" : "var(--bg-hover)"}
-              stroke={n.type === "service" ? "rgba(99,102,241,0.3)" : "var(--border)"}
+              stroke={n.type === "service" ? "rgba(6,182,212,0.3)" : "var(--border)"}
               strokeWidth={1}
             />
             <text x={n.x + 56} y={n.y + 22} textAnchor="middle" fontSize={11} fill="var(--text)" fontFamily="monospace">
@@ -69,7 +69,7 @@ function DependencyGraph({ components, services, api_routes }: Pick<Architecture
           <span style={{ width: 12, height: 12, background: "var(--bg-hover)", border: "1px solid var(--border)", borderRadius: 2, display: "inline-block" }} /> Classes
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 12, height: 12, background: "var(--accent-dim)", border: "1px solid rgba(99,102,241,0.3)", borderRadius: 2, display: "inline-block" }} /> Services
+          <span style={{ width: 12, height: 12, background: "var(--accent-dim)", border: "1px solid rgba(6,182,212,0.3)", borderRadius: 2, display: "inline-block" }} /> Services
         </span>
       </div>
     </div>
@@ -146,7 +146,7 @@ export default function ArchitecturePage() {
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8 }}>
                   <span style={{
                     fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 4,
-                    background: r.method === "GET" ? "rgba(34,197,94,0.1)" : r.method === "POST" ? "rgba(99,102,241,0.1)" : "rgba(245,158,11,0.1)",
+                    background: r.method === "GET" ? "rgba(34,197,94,0.1)" : r.method === "POST" ? "rgba(6,182,212,0.1)" : "rgba(245,158,11,0.1)",
                     color: r.method === "GET" ? "var(--green)" : r.method === "POST" ? "var(--accent-hover)" : "var(--yellow)",
                     minWidth: 42, textAlign: "center",
                   }}>
@@ -180,7 +180,7 @@ export default function ArchitecturePage() {
           ? <div style={{ color: "var(--text-muted)", fontSize: 13 }}>No service classes detected.</div>
           : <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {data.services.map((s, i) => (
-                <div key={i} style={{ padding: "10px 16px", background: "var(--accent-dim)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 8, minWidth: 180 }}>
+                <div key={i} style={{ padding: "10px 16px", background: "var(--accent-dim)", border: "1px solid rgba(6,182,212,0.2)", borderRadius: 8, minWidth: 180 }}>
                   <div style={{ fontWeight: 500, fontSize: 13, color: "var(--accent-hover)", marginBottom: 4 }}>{s.name}</div>
                   <FileLink filePath={s.file_path} fileId={s.file_id} projectId={pid} repositoryId={rid} />
                 </div>

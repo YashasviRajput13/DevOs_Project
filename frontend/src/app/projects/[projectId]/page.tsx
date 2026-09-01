@@ -23,8 +23,8 @@ function StatusBadge({ indexed, status }: { indexed: boolean; status: IndexStatu
       <span style={{
         display: "inline-flex", alignItems: "center", gap: 5,
         fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 20,
-        background: "rgba(99,102,241,0.12)", color: "var(--accent)",
-        border: "1px solid rgba(99,102,241,0.25)",
+        background: "rgba(6,182,212,0.12)", color: "var(--accent)",
+        border: "1px solid rgba(6,182,212,0.25)",
       }}>
         <SpinnerIcon size={10} />
         Indexing…

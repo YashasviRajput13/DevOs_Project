@@ -43,7 +43,13 @@ app.include_router(agent_router)         # /api/agent
 # ── Health ────────────────────────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
 async def health_check():
-    return {"status": "ok", "env": settings.APP_ENV, "debug": settings.DEBUG}
+    return {
+        "status": "ok", 
+        "env": settings.APP_ENV, 
+        "debug": settings.DEBUG,
+        "groq_configured": bool(settings.GROQ_API_KEY.strip()),
+        "gemini_configured": bool(settings.GEMINI_API_KEY.strip())
+    }
 
 @app.get("/", tags=["Root"])
 async def root():
