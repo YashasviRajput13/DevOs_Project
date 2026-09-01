@@ -41,7 +41,7 @@ class LLMService:
         settings = get_settings()
 
         api_key = settings.GROQ_API_KEY.strip()
-        model = settings.GROQ_MODEL.strip() or "llama-3.3-70b-versatile"
+        model = settings.GROQ_MODEL.strip()
 
         logger.info(
             "LLMService: key_present=%s key_length=%d model=%s",
@@ -165,9 +165,12 @@ class LLMService:
             return response.choices[0].message.content or ""
         except Exception as e:
             e_str = str(e).lower()
+            logger.error("LLM generate_change_plan: Groq error — %s: %s", type(e).__name__, e)
             if "invalid_api_key" in e_str or "unauthorized" in e_str or "401" in e_str:
                 raise ValueError("AI configuration error: Invalid API key") from None
-            raise ValueError("AI service unavailable") from None
+            if "context_length" in e_str or "maximum context" in e_str or "too many tokens" in e_str:
+                raise ValueError("AI service error: prompt too long") from None
+            raise ValueError(f"AI service unavailable: {type(e).__name__}: {str(e)[:200]}") from None
 
     # ------------------------------------------------------------------
     # General agent (DEBUG, EXPLAIN, IMPROVE, ANALYZE)
@@ -228,11 +231,13 @@ class LLMService:
             return content
         except Exception as e:
             e_str = str(e).lower()
-            logger.error("LLM _call: Groq error — %s", type(e).__name__)
+            logger.error("LLM _call: Groq error — %s: %s", type(e).__name__, e)
             if "invalid_api_key" in e_str or "unauthorized" in e_str or "401" in e_str:
                 raise ValueError("AI configuration error: Invalid API key") from None
             if "model" in e_str and ("not found" in e_str or "does not exist" in e_str):
                 raise ValueError(f"AI configuration error: model '{self.model}' not found") from None
             if "timeout" in e_str or "timed out" in e_str:
                 raise ValueError("AI service timed out") from None
-            raise ValueError(f"AI service unavailable: {type(e).__name__}") from None
+            if "context_length" in e_str or "maximum context" in e_str or "too many tokens" in e_str:
+                raise ValueError("AI service error: prompt too long — try a smaller repository or question") from None
+            raise ValueError(f"AI service unavailable: {type(e).__name__}: {str(e)[:200]}") from None
