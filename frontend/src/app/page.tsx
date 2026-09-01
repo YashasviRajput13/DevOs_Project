@@ -50,7 +50,7 @@ export default function LandingPage() {
             <div style={{
               width: 28, height: 28, backgroundColor: "var(--accent)", borderRadius: 8,
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontWeight: 700, color: "white", boxShadow: "0 0 15px rgba(99,102,241,0.5)"
+              fontWeight: 700, color: "white", boxShadow: "0 0 15px rgba(6,182,212,0.5)"
             }}>D</div>
             <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: "-0.02em" }}>DevOs</span>
           </div>
@@ -91,10 +91,7 @@ export default function LandingPage() {
             marginBottom: 24, lineHeight: 1.1, color: "white"
           }}>
             Understand. Build. Ship.<br />
-            With the <span style={{
-              background: "linear-gradient(to right, #818cf8, #c084fc)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
-            }}>Power of AI.</span>
+            With the <span style={{ color: "#06B6D4" }}>Power of AI.</span>
           </h1>
 
           <p style={{
@@ -112,7 +109,7 @@ export default function LandingPage() {
               width: isMobile ? "100%" : "auto", padding: "14px 32px",
               backgroundColor: "var(--accent)", color: "white", borderRadius: 12,
               fontSize: 15, fontWeight: 500, textDecoration: "none",
-              boxShadow: "0 0 30px rgba(99,102,241,0.3)"
+              boxShadow: "0 0 30px rgba(6,182,212,0.3)"
             }}>
               Get Started Free →
             </Link>
@@ -133,7 +130,7 @@ export default function LandingPage() {
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", overflow: "hidden"
           }}>
             <div style={{
-              position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(99,102,241,0.05), transparent)",
+              position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(6,182,212,0.05), transparent)",
               pointerEvents: "none"
             }} />
 
@@ -162,9 +159,9 @@ export default function LandingPage() {
                 backgroundColor: "rgba(0,0,0,0.4)", backdropFilter: "blur(2px)", cursor: "pointer"
               }}>
                 <div style={{
-                  width: 80, height: 80, borderRadius: "50%", backgroundColor: "rgba(99,102,241,0.9)",
+                  width: 80, height: 80, borderRadius: "50%", backgroundColor: "rgba(6,182,212,0.9)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 0 30px rgba(99,102,241,0.6)", paddingLeft: 4
+                  boxShadow: "0 0 30px rgba(6,182,212,0.6)", paddingLeft: 4
                 }}>
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z" /></svg>
                 </div>
@@ -179,7 +176,7 @@ export default function LandingPage() {
                   <div style={{ height: 16, width: 96, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 4, marginBottom: 16 }} />
                   <div style={{ height: 32, width: "100%", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 4 }} />
                   <div style={{ height: 32, width: "100%", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 4 }} />
-                  <div style={{ height: 32, width: "100%", backgroundColor: "rgba(99,102,241,0.2)", borderRadius: 4, border: "1px solid rgba(99,102,241,0.3)" }} />
+                  <div style={{ height: 32, width: "100%", backgroundColor: "rgba(6,182,212,0.2)", borderRadius: 4, border: "1px solid rgba(6,182,212,0.3)" }} />
                 </div>
               )}
 
@@ -287,7 +284,7 @@ export default function LandingPage() {
               {!isMobile && (
                 <div style={{
                   position: "absolute", top: 28, left: "15%", right: "15%", height: 1,
-                  background: "linear-gradient(to right, transparent, rgba(99,102,241,0.5), transparent)"
+                  background: "linear-gradient(to right, transparent, rgba(6,182,212,0.5), transparent)"
                 }} />
               )}
 
@@ -359,10 +356,10 @@ export default function LandingPage() {
                   <div style={{
                     width: 32, height: 32, borderRadius: 8, backgroundColor: "var(--accent)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0, boxShadow: "0 0 10px rgba(99,102,241,0.4)", fontSize: 12, fontWeight: 700, color: "white"
+                    flexShrink: 0, boxShadow: "0 0 10px rgba(6,182,212,0.4)", fontSize: 12, fontWeight: 700, color: "white"
                   }}>D</div>
                   <div style={{
-                    backgroundColor: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
+                    backgroundColor: "rgba(6,182,212,0.1)", border: "1px solid rgba(6,182,212,0.2)",
                     padding: 16, borderRadius: 16, borderTopLeftRadius: 4, fontSize: 14, color: "#e0e7ff", lineHeight: 1.6
                   }}>
                     <p style={{ marginBottom: 12 }}>Authentication is handled through the API authentication layer via JWT tokens.</p>
@@ -370,7 +367,7 @@ export default function LandingPage() {
                       backgroundColor: "#0a0a0f", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.05)",
                       marginBottom: 12, fontFamily: "monospace", fontSize: 12, color: "#cbd5e1"
                     }}>
-                      <span style={{ color: "#c084fc" }}>import</span> jwt<br />
+                      <span style={{ color: "#22D3EE" }}>import</span> jwt<br />
                       <span style={{ color: "#60a5fa" }}>def</span> <span style={{ color: "#fef08a" }}>verify_token</span>(token: str):<br />
                       &nbsp;&nbsp;&nbsp;&nbsp;payload = jwt.decode(token, JWT_SECRET)
                     </div>
@@ -400,7 +397,7 @@ export default function LandingPage() {
         {/* CTA */}
         <section style={{ padding: "128px 24px", position: "relative", overflow: "hidden" }}>
           <div style={{
-            position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent, rgba(49, 46, 129, 0.2))",
+            position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent, rgba(8, 145, 178, 0.2))",
             pointerEvents: "none"
           }} />
           <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 10 }}>
@@ -411,7 +408,7 @@ export default function LandingPage() {
             <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "center", gap: 16 }}>
               <Link href="/dashboard" style={{
                 padding: "14px 32px", backgroundColor: "var(--accent)", color: "white", borderRadius: 12,
-                fontSize: 15, fontWeight: 500, textDecoration: "none", boxShadow: "0 0 20px rgba(99,102,241,0.4)"
+                fontSize: 15, fontWeight: 500, textDecoration: "none", boxShadow: "0 0 20px rgba(6,182,212,0.4)"
               }}>
                 Get Started Free →
               </Link>
@@ -469,10 +466,10 @@ function StepItem({ num, title, desc }: { num: string, title: string, desc: stri
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", position: "relative" }}>
       <div style={{
-        width: 56, height: 56, backgroundColor: "#111118", border: "1px solid rgba(99,102,241,0.3)",
+        width: 56, height: 56, backgroundColor: "#111118", border: "1px solid rgba(6,182,212,0.3)",
         color: "var(--accent-hover)", fontWeight: 700, fontSize: 18, borderRadius: 16,
         display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24,
-        boxShadow: "0 0 20px rgba(99,102,241,0.15)", position: "relative", zIndex: 10
+        boxShadow: "0 0 20px rgba(6,182,212,0.15)", position: "relative", zIndex: 10
       }}>
         {num}
       </div>
@@ -485,7 +482,7 @@ function StepItem({ num, title, desc }: { num: string, title: string, desc: stri
 function TechItem({ name, role }: { name: string, role: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-      <div style={{ width: 8, height: 8, backgroundColor: "rgba(99,102,241,0.5)", borderRadius: "50%" }} />
+      <div style={{ width: 8, height: 8, backgroundColor: "rgba(6,182,212,0.5)", borderRadius: "50%" }} />
       <div>
         <div style={{ color: "#e2e8f0", fontWeight: 500, fontSize: 14 }}>{name}</div>
         <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{role}</div>
