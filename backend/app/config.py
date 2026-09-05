@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     JWT_EXPIRY_MINUTES: int = 60
 
     # CORS
-    CORS_ORIGINS: str = "http://localhost:3000"
+    CORS_ORIGINS: str = "http://localhost:3000,https://dev-os-theta.vercel.app,https://dev-lb6bs40um-ryashasvi177-5992s-projects.vercel.app"
 
     
     @property
