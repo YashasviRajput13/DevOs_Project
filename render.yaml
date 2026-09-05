@@ -15,6 +15,7 @@ services:
       - key: GITHUB_TOKEN
         sync: false
       - key: CORS_ORIGINS
+        # Set this in Render dashboard to: https://dev-os-theta.vercel.app,http://localhost:3000
         sync: false
       - key: DEBUG
         value: false

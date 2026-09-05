@@ -25,9 +25,13 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────
+_logger = logging.getLogger(__name__)
+_cors_origins = settings.cors_origins_list
+_logger.info("CORS allowed origins: %s", _cors_origins)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
