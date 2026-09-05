@@ -1,6 +1,6 @@
 ﻿<div align="center">
 
-# 🚀 DevOs
+#  DevOs
 
 **AI-Powered Developer & Repository Intelligence Platform**
 
