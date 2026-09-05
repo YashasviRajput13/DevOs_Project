@@ -1,6 +1,6 @@
 ﻿# DevOs
 
- <img width="702" height="717" alt="image" src="https://github.com/user-attachments/assets/98fe700b-3285-445a-b9ef-174bc4a75261" />
+<img width="1612" height="712" alt="image" src="https://github.com/user-attachments/assets/ec1f22ba-5931-4531-a7bb-35acf2843d15" />
 
 
 DevOs is an AI-powered repository intelligence and agentic development platform.
