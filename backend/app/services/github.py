@@ -44,26 +44,38 @@ class GitHubService:
     async def get_repository(self, owner: str, repo: str):
         repo = self._clean_repo(repo)
         url = f"{self.base_url}/repos/{owner}/{repo}"
+        logger.info(f"GitHub API endpoint: {url} | owner: {owner} | repo: {repo}")
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
+        logger.info(f"HTTP status code: {response.status_code}")
+        if response.is_error:
+            logger.error(f"GitHub error message: {response.text}")
         response.raise_for_status()
         return response.json()
 
     async def get_tree(self, owner: str, repo: str, branch: str):
         repo = self._clean_repo(repo)
         url = f"{self.base_url}/repos/{owner}/{repo}/git/trees/{branch}"
+        logger.info(f"GitHub API endpoint: {url} | owner: {owner} | repo: {repo} | branch: {branch}")
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 url, headers=self.headers, params={"recursive": "1"}
             )
+        logger.info(f"HTTP status code: {response.status_code}")
+        if response.is_error:
+            logger.error(f"GitHub error message: {response.text}")
         response.raise_for_status()
         return response.json()
 
     async def get_file_content(self, owner: str, repo: str, path: str):
         repo = self._clean_repo(repo)
         url = f"{self.base_url}/repos/{owner}/{repo}/contents/{path}"
+        logger.info(f"GitHub API endpoint: {url} | owner: {owner} | repo: {repo}")
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
+        logger.info(f"HTTP status code: {response.status_code}")
+        if response.is_error:
+            logger.error(f"GitHub error message: {response.text}")
         response.raise_for_status()
         return response.json()
 
